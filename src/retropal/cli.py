@@ -9,6 +9,7 @@ from pathlib import Path
 from retropal import __version__
 from retropal.core.batch import convert_batch
 from retropal.core.converter import convert_file
+from retropal.core.dither import DITHER_IDS
 from retropal.core.image_io import inspect_image
 from retropal.core.models import DitherMode
 from retropal.palettes import PALETTE_IDS
@@ -32,7 +33,7 @@ def build_parser() -> argparse.ArgumentParser:
     convert_parser.add_argument("--palette", choices=PALETTE_IDS, required=True)
     convert_parser.add_argument(
         "--dither",
-        choices=tuple(mode.value for mode in DitherMode),
+        choices=DITHER_IDS,
         default=DitherMode.NONE.value,
     )
 
@@ -42,7 +43,7 @@ def build_parser() -> argparse.ArgumentParser:
     batch_parser.add_argument("--palette", choices=PALETTE_IDS, required=True)
     batch_parser.add_argument(
         "--dither",
-        choices=tuple(mode.value for mode in DitherMode),
+        choices=DITHER_IDS,
         default=DitherMode.NONE.value,
     )
     batch_parser.add_argument(
@@ -91,7 +92,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"Alpha: {'yes' if info.has_alpha else 'no'}")
         return 0
     if args.command == "convert":
-        convert_file(args.input, args.output, args.palette, DitherMode(args.dither))
+        convert_file(args.input, args.output, args.palette, args.dither)
         print(f"Wrote {args.output}")
         return 0
     if args.command == "batch":
@@ -99,7 +100,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.input,
             args.output,
             args.palette,
-            DitherMode(args.dither),
+            args.dither,
             recursive=args.recursive,
             overwrite=args.overwrite,
             dry_run=args.dry_run,

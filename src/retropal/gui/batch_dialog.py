@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
 )
 
 from retropal.core.batch import BatchResult, convert_batch, discover_images
-from retropal.core.models import DitherMode
+from retropal.core.dither import iter_dithers
 from retropal.palettes import PALETTE_IDS
 
 
@@ -42,7 +42,7 @@ class BatchWorker(QObject):
         input_dir: Path,
         output_dir: Path,
         palette_id: str,
-        dither: DitherMode,
+        dither: str,
         *,
         recursive: bool,
         overwrite: bool,
@@ -143,8 +143,8 @@ class BatchConvertDialog(QDialog):
         form.addRow("Palette:", self._palette_combo)
 
         self._dither_combo = QComboBox(self)
-        self._dither_combo.addItem("None", DitherMode.NONE)
-        self._dither_combo.addItem("Floyd–Steinberg", DitherMode.FLOYD_STEINBERG)
+        for algorithm in iter_dithers():
+            self._dither_combo.addItem(algorithm.display_name, algorithm.id)
         form.addRow("Dithering:", self._dither_combo)
 
         self._recursive = QCheckBox("Include subdirectories", self)

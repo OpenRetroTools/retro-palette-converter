@@ -1,33 +1,20 @@
-"""Palette mapping and Floyd-Steinberg dithering."""
+"""Floyd-Steinberg error-diffusion dithering."""
 
 from __future__ import annotations
 
 from PIL import Image
 
+from retropal.core.dither.base import DitherAlgorithm
+from retropal.core.dither.common import nearest_color
 from retropal.palettes.base import RGBColor
 
 
-def nearest_color(rgb: tuple[float, float, float], palette: tuple[RGBColor, ...]) -> RGBColor:
-    return min(
-        palette,
-        key=lambda color: sum((rgb[channel] - color[channel]) ** 2 for channel in range(3)),
-    )
+def apply_floyd_steinberg(
+    image: Image.Image,
+    palette: tuple[RGBColor, ...],
+) -> Image.Image:
+    """Map an image using Floyd-Steinberg error diffusion."""
 
-
-def map_without_dither(image: Image.Image, palette: tuple[RGBColor, ...]) -> Image.Image:
-    output = Image.new("RGBA", image.size)
-    pixels = []
-    for r, g, b, alpha in image.convert("RGBA").get_flattened_data():
-        if alpha == 0:
-            pixels.append((0, 0, 0, 0))
-        else:
-            nr, ng, nb = nearest_color((r, g, b), palette)
-            pixels.append((nr, ng, nb, alpha))
-    output.putdata(pixels)
-    return output
-
-
-def map_floyd_steinberg(image: Image.Image, palette: tuple[RGBColor, ...]) -> Image.Image:
     rgba = image.convert("RGBA")
     width, height = rgba.size
     work = [
@@ -45,13 +32,12 @@ def map_floyd_steinberg(image: Image.Image, palette: tuple[RGBColor, ...]) -> Im
             new = nearest_color(tuple(old), palette)
             output.putpixel((x, y), (*new, alpha[y][x]))
             error = [old[channel] - new[channel] for channel in range(3)]
-            neighbors = (
+            for dx, dy, factor in (
                 (1, 0, 7 / 16),
                 (-1, 1, 3 / 16),
                 (0, 1, 5 / 16),
                 (1, 1, 1 / 16),
-            )
-            for dx, dy, factor in neighbors:
+            ):
                 nx, ny = x + dx, y + dy
                 if 0 <= nx < width and 0 <= ny < height and alpha[ny][nx] > 0:
                     for channel in range(3):
@@ -60,3 +46,6 @@ def map_floyd_steinberg(image: Image.Image, palette: tuple[RGBColor, ...]) -> Im
                             max(0.0, work[ny][nx][channel] + error[channel] * factor),
                         )
     return output
+
+
+ALGORITHM = DitherAlgorithm("floyd-steinberg", "Floyd–Steinberg", apply_floyd_steinberg)

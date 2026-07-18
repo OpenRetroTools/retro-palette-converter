@@ -89,3 +89,9 @@ Windows PowerShell:
 
 Pushing a version tag such as `v0.1.2` runs the GitHub release workflow and
 attaches Windows, Linux, and macOS Apple Silicon ZIP archives to the GitHub release.
+
+### Extensible dithering
+
+Dithering choices are provided by a shared registry used by both the CLI and desktop GUI.
+M2.2a includes `none` and `floyd-steinberg`; additional algorithms can be registered without
+changing command-line or GUI option lists.

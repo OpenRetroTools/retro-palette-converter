@@ -38,7 +38,7 @@ class ConverterController:
         self.result_palette = ()
         return self.source_image
 
-    def set_options(self, palette_id: str, dither: DitherMode) -> None:
+    def set_options(self, palette_id: str, dither: str | DitherMode) -> None:
         self.palette_id = palette_id
         self.dither = dither
 

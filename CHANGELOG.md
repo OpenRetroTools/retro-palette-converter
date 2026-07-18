@@ -1,3 +1,10 @@
+## [Unreleased]
+
+### Changed
+
+- Refactored dithering into an extensible registry shared by the converter, CLI, and GUI.
+- Kept the existing `none` and `floyd-steinberg` modes backward compatible.
+
 # Changelog
 
 ## Unreleased

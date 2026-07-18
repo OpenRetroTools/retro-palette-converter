@@ -23,7 +23,7 @@ from PySide6.QtWidgets import (
 )
 
 from retropal import __version__
-from retropal.core.models import DitherMode
+from retropal.core.dither import iter_dithers
 from retropal.gui.batch_dialog import BatchConvertDialog
 from retropal.gui.controller import ConverterController
 from retropal.gui.image_view import ImageView
@@ -121,8 +121,8 @@ class MainWindow(QMainWindow):
         form.addRow("Palette:", self._palette_combo)
 
         self._dither_combo = QComboBox()
-        self._dither_combo.addItem("None", DitherMode.NONE)
-        self._dither_combo.addItem("Floyd–Steinberg", DitherMode.FLOYD_STEINBERG)
+        for algorithm in iter_dithers():
+            self._dither_combo.addItem(algorithm.display_name, algorithm.id)
         self._dither_combo.currentIndexChanged.connect(self.refresh_conversion)
         form.addRow("Dithering:", self._dither_combo)
         controls.addLayout(form)

@@ -67,7 +67,7 @@ def convert_batch(
     input_dir: Path,
     output_dir: Path,
     palette_id: str,
-    dither: DitherMode = DitherMode.NONE,
+    dither: str | DitherMode = DitherMode.NONE,
     *,
     recursive: bool = True,
     overwrite: bool = False,

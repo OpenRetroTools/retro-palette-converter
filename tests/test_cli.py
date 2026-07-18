@@ -6,7 +6,8 @@ import pytest
 from PIL import Image
 
 from retropal import __version__
-from retropal.cli import main
+from retropal.cli import build_parser, main
+from retropal.core.dither import DITHER_IDS
 
 
 def test_cli_without_arguments_prints_help(capsys: pytest.CaptureFixture[str]) -> None:
@@ -87,3 +88,15 @@ def test_batch_command_dry_run_and_no_recursive(
 
     assert not target_dir.exists()
     assert "Summary: converted=0 skipped=0 failed=0" in capsys.readouterr().out
+
+
+def test_cli_dither_choices_come_from_registry() -> None:
+    parser = build_parser()
+    subparsers = next(
+        action
+        for action in parser._actions
+        if action.dest == "command"  # noqa: SLF001
+    )
+    convert_parser = subparsers.choices["convert"]
+    dither_action = next(action for action in convert_parser._actions if action.dest == "dither")
+    assert tuple(dither_action.choices) == DITHER_IDS
