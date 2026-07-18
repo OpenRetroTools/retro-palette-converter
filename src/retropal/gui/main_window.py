@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
 
 from retropal import __version__
 from retropal.core.models import DitherMode
+from retropal.gui.batch_dialog import BatchConvertDialog
 from retropal.gui.controller import ConverterController
 from retropal.gui.image_view import ImageView
 from retropal.gui.palette_view import PaletteView
@@ -57,6 +58,9 @@ class MainWindow(QMainWindow):
         self._export_action.setShortcut(QKeySequence.StandardKey.SaveAs)
         self._export_action.triggered.connect(self.export_image)
 
+        self._batch_action = QAction("&Batch Convert…", self)
+        self._batch_action.triggered.connect(self.open_batch_dialog)
+
         self._export_palette_action = QAction("Export &Palette…", self)
         self._export_palette_action.triggered.connect(self.export_palette)
 
@@ -69,6 +73,7 @@ class MainWindow(QMainWindow):
 
         file_menu = self.menuBar().addMenu("&File")
         file_menu.addAction(self._open_action)
+        file_menu.addAction(self._batch_action)
         file_menu.addAction(self._export_action)
         file_menu.addAction(self._export_palette_action)
         file_menu.addSeparator()
@@ -151,6 +156,11 @@ class MainWindow(QMainWindow):
         filename, _ = QFileDialog.getOpenFileName(self, "Open image", start_dir, IMAGE_FILTER)
         if filename:
             self.load_path(Path(filename))
+
+    def open_batch_dialog(self) -> None:
+        start_dir = Path(self._settings.value("lastDirectory", str(Path.home()), type=str))
+        dialog = BatchConvertDialog(self, start_dir=start_dir)
+        dialog.exec()
 
     def load_path(self, path: Path) -> None:
         try:

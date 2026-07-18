@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Added a responsive GUI batch-conversion dialog under File → Batch Convert.
+- Added input/output directory selection, palette and dithering options, recursive mode, overwrite, and dry-run controls.
+- Added progress reporting, cancellation between files, output-folder opening, and completion summaries.
+- Extended the shared batch engine with progress and cancellation hooks for GUI reuse.
+
 ## 0.1.2 — 2026-07-18
 
 ### Fixed

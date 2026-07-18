@@ -123,3 +123,40 @@ def test_output_directory_inside_input_is_not_reprocessed(tmp_path: Path) -> Non
     result = convert_batch(input_dir, output_dir, "ega", overwrite=True)
 
     assert result.converted == (output_dir.resolve() / "source.png",)
+
+
+def test_convert_batch_reports_progress(tmp_path: Path) -> None:
+    input_dir = tmp_path / "input"
+    output_dir = tmp_path / "output"
+    make_image(input_dir / "a.png")
+    make_image(input_dir / "b.png")
+    events: list[tuple[int, str]] = []
+
+    result = convert_batch(
+        input_dir,
+        output_dir,
+        "ega",
+        progress=lambda index, source: events.append((index, source.name)),
+    )
+
+    assert result.success
+    assert events == [(1, "a.png"), (2, "b.png")]
+
+
+def test_convert_batch_can_be_cancelled_between_files(tmp_path: Path) -> None:
+    input_dir = tmp_path / "input"
+    output_dir = tmp_path / "output"
+    make_image(input_dir / "a.png")
+    make_image(input_dir / "b.png")
+    checks = 0
+
+    def is_cancelled() -> bool:
+        nonlocal checks
+        checks += 1
+        return checks > 1
+
+    result = convert_batch(input_dir, output_dir, "ega", is_cancelled=is_cancelled)
+
+    assert result.cancelled
+    assert result.converted == (output_dir.resolve() / "a.png",)
+    assert not (output_dir / "b.png").exists()

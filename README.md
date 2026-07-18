@@ -11,6 +11,7 @@ hardware-inspired retro palettes.
 - PNG, JPEG, and BMP input; PNG output
 - Alpha preservation
 - Drag and drop, synchronized zoom, pan, fit, and 100% view
+- Batch conversion from both the GUI and CLI
 - Lightweight CLI without Qt
 
 ## Development installation
@@ -43,6 +44,7 @@ continue to use Qt's default display backend.
 ```bash
 uv run retropal palettes
 uv run retropal inspect input.png
+uv run retropal batch input-dir output-dir --palette amiga-ocs-32
 uv run retropal convert input.png --palette amiga-ocs-32 \
   --dither floyd-steinberg --output output.png
 ```

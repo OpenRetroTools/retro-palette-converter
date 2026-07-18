@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -27,6 +27,7 @@ class BatchResult:
     converted: tuple[Path, ...]
     skipped: tuple[Path, ...]
     failures: tuple[BatchFailure, ...]
+    cancelled: bool = False
 
     @property
     def success(self) -> bool:
@@ -71,6 +72,8 @@ def convert_batch(
     recursive: bool = True,
     overwrite: bool = False,
     dry_run: bool = False,
+    progress: Callable[[int, Path], None] | None = None,
+    is_cancelled: Callable[[], bool] | None = None,
 ) -> BatchResult:
     """Convert supported images below *input_dir* to PNG files in *output_dir*."""
 
@@ -82,7 +85,13 @@ def convert_batch(
     skipped: list[Path] = []
     failures: list[BatchFailure] = []
 
-    for source in sources:
+    cancelled = False
+    for index, source in enumerate(sources, start=1):
+        if is_cancelled is not None and is_cancelled():
+            cancelled = True
+            break
+        if progress is not None:
+            progress(index, source)
         # Avoid treating an existing output tree as new input when it lives below input_dir.
         if source.is_relative_to(output_dir):
             continue
@@ -107,4 +116,5 @@ def convert_batch(
         converted=tuple(converted),
         skipped=tuple(skipped),
         failures=tuple(failures),
+        cancelled=cancelled,
     )
