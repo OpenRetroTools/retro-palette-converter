@@ -38,16 +38,7 @@ jobs:
       - name: Install Butler
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/butler"
-          gh release download \
-            --repo itchio/butler \
-            --pattern "butler-linux-amd64.zip" \
-            --dir "$RUNNER_TEMP/butler"
-          unzip -q "$RUNNER_TEMP/butler/butler-linux-amd64.zip" \
-            -d "$RUNNER_TEMP/butler"
-          chmod +x "$RUNNER_TEMP/butler/butler"
-          echo "$RUNNER_TEMP/butler" >> "$GITHUB_PATH"
+        uses: remarkablegames/setup-butler@v2
 
       - name: Publish available channels
         run: |
