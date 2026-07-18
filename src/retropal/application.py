@@ -19,7 +19,9 @@ def run_gui(argv: Sequence[str] | None = None) -> int:
 
     application = QApplication(list(argv) if argv is not None else [])
     application.setApplicationName("Retro Palette Converter")
+    application.setApplicationDisplayName("Retro Palette Converter")
     application.setOrganizationName("OpenRetroTools")
+    application.setOrganizationDomain("github.com/OpenRetroTools")
     window = MainWindow()
     window.show()
     return application.exec()

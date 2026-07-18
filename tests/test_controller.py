@@ -29,3 +29,15 @@ def test_controller_load_convert_and_export(tmp_path: Path) -> None:
     assert output == tmp_path / "result.png"
     assert output.exists()
     assert controller.suggested_output_path() == tmp_path / "source-gameboy.png"
+
+
+def test_controller_exports_palette(tmp_path) -> None:
+    controller = ConverterController()
+    source = tmp_path / "source.png"
+    Image.new("RGBA", (2, 1), (15, 56, 15, 255)).save(source)
+    controller.load(source)
+    controller.set_options("gameboy", DitherMode.NONE)
+    controller.refresh()
+    output = controller.export_palette(tmp_path / "palette.gpl")
+    assert output.exists()
+    assert output.read_text(encoding="utf-8").startswith("GIMP Palette")

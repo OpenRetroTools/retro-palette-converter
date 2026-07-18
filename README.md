@@ -1,78 +1,68 @@
 # Retro Palette Converter
 
-A small, deterministic command-line tool for converting PNG images to retro color palettes.
-M1 provides the reusable conversion engine and CLI. The desktop GUI is planned for M2.
+A small cross-platform GUI and CLI for converting artwork to classic and
+hardware-inspired retro palettes.
 
 ## Features
 
-- Game Boy, PICO-8, EGA 16, and DawnBringer 16 fixed palettes
-- Image-derived Amiga OCS 16- and 32-color palettes
-- No dithering or Floyd-Steinberg dithering
-- Preserves per-pixel alpha
-- PNG inspection command
-- Cross-platform Python package
+- Side-by-side original and converted previews
+- Game Boy, PICO-8, EGA 16, DawnBringer 16, and Amiga OCS 16/32
+- None or Floyd–Steinberg dithering
+- PNG, JPEG, and BMP input; PNG output
+- Alpha preservation
+- Drag and drop, synchronized zoom, pan, fit, and 100% view
+- Lightweight CLI without Qt
 
-## Install for development
+## Development installation
 
 ```bash
 unset UV_INDEX_URL UV_DEFAULT_INDEX UV_EXTRA_INDEX_URL
 unset PIP_INDEX_URL PIP_EXTRA_INDEX_URL
-uv sync --extra dev --default-index https://pypi.org/simple
+uv sync --extra dev --extra gui --default-index https://pypi.org/simple
 ```
 
-The M1 CLI does not require Qt. PySide6 is deferred to the optional GUI dependency:
+## GUI
 
 ```bash
-uv sync --extra gui --extra dev --default-index https://pypi.org/simple
+uv run retropal gui
 ```
 
-## Usage
+Linux and ChromeOS Crostini users can use the included XCB launcher:
+
+```bash
+sudo apt install libxcb-cursor0
+./scripts/run-gui-linux.sh
+```
+
+## CLI
 
 ```bash
 uv run retropal palettes
 uv run retropal inspect input.png
-uv run retropal convert input.png --palette gameboy --output output.png
 uv run retropal convert input.png --palette amiga-ocs-32 \
   --dither floyd-steinberg --output output.png
 ```
 
-Available palette IDs:
-
-- `gameboy`
-- `pico8`
-- `ega`
-- `dawnbringer16`
-- `amiga-ocs-16`
-- `amiga-ocs-32`
-
-## Checks
+## Verification
 
 ```bash
+uv run ruff format --check src tests
 uv run ruff check .
-uv run ruff format --check .
 uv run pytest
-uv run retropal --version
+uv run python -m compileall -q src
 ```
 
-## Desktop GUI (M2)
+## Roadmap
 
-Install the optional Qt dependency and start the application:
+- v0.1: desktop converter and CLI
+- v0.2: batch conversion
+- v0.3: custom palette import and editing
+- v0.4: sprite-sheet workflows
 
-```bash
-uv sync --extra dev --extra gui --default-index https://pypi.org/simple
-uv run retropal gui
-```
+Licensed under the MIT License.
 
-The GUI supports opening or dropping a PNG, side-by-side previews, palette and dithering
-selection, and PNG export. The conversion engine remains usable without Qt through the CLI.
+## Palette tools
 
-### Linux / ChromeOS Crostini
-
-If the native Wayland backend is unstable, start the GUI through the included
-XCB wrapper:
-
-```bash
-./scripts/run-gui-linux.sh
-```
-
-Set `QT_QPA_PLATFORM=wayland` explicitly to retry the native Wayland backend.
+- Palette preview with used-color count
+- GPL and JSON palette export
+- Amiga OCS `$RGB` metadata
