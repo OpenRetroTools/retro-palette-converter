@@ -13,6 +13,11 @@ class DitherMode(StrEnum):
     BAYER_2X2 = "bayer-2x2"
     BAYER_4X4 = "bayer-4x4"
     BAYER_8X8 = "bayer-8x8"
+    SIERRA_LITE = "sierra-lite"
+    SIERRA = "sierra"
+    BURKES = "burkes"
+    STUCKI = "stucki"
+    JARVIS_JUDICE_NINKE = "jarvis-judice-ninke"
 
 
 @dataclass(frozen=True, slots=True)

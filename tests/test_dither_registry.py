@@ -15,6 +15,11 @@ def test_builtin_dithers_are_registered_in_stable_order() -> None:
         "bayer-2x2",
         "bayer-4x4",
         "bayer-8x8",
+        "sierra-lite",
+        "sierra",
+        "burkes",
+        "stucki",
+        "jarvis-judice-ninke",
     )
     assert [algorithm.display_name for algorithm in iter_dithers()] == [
         "None",
@@ -23,6 +28,11 @@ def test_builtin_dithers_are_registered_in_stable_order() -> None:
         "Bayer 2×2",
         "Bayer 4×4",
         "Bayer 8×8",
+        "Sierra Lite",
+        "Sierra",
+        "Burkes",
+        "Stucki",
+        "Jarvis–Judice–Ninke",
     ]
 
 

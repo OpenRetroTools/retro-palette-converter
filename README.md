@@ -98,4 +98,4 @@ changing command-line or GUI option lists.
 
 ## Dithering
 
-Available modes: none, Floyd–Steinberg, Atkinson, Bayer 2×2, Bayer 4×4, and Bayer 8×8.
+Available modes: none, Floyd–Steinberg, Atkinson, Bayer 2×2, Bayer 4×4, Bayer 8×8, Sierra Lite, Sierra, Burkes, Stucki, and Jarvis–Judice–Ninke.

@@ -23,3 +23,8 @@ def test_dither_mode_values() -> None:
     assert DitherMode.BAYER_2X2.value == "bayer-2x2"
     assert DitherMode.BAYER_4X4.value == "bayer-4x4"
     assert DitherMode.BAYER_8X8.value == "bayer-8x8"
+    assert DitherMode.SIERRA_LITE.value == "sierra-lite"
+    assert DitherMode.SIERRA.value == "sierra"
+    assert DitherMode.BURKES.value == "burkes"
+    assert DitherMode.STUCKI.value == "stucki"
+    assert DitherMode.JARVIS_JUDICE_NINKE.value == "jarvis-judice-ninke"

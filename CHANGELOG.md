@@ -4,6 +4,7 @@
 
 - Atkinson error-diffusion dithering.
 - Bayer 2×2, 4×4, and 8×8 ordered dithering.
+- Added Sierra Lite, Sierra, Burkes, Stucki, and Jarvis–Judice–Ninke dithering.
 
 ### Changed
 
@@ -13,6 +14,7 @@
 # Changelog
 
 ## Unreleased
+
 
 ### Added
 
@@ -75,3 +77,4 @@
 ## 0.2.0.dev0 — M1
 
 - Added PNG conversion, fixed palettes, Amiga OCS palettes, dithering, and inspection.
+

@@ -4,6 +4,13 @@ from __future__ import annotations
 
 from retropal.core.dither.atkinson import ALGORITHM as ATKINSON
 from retropal.core.dither.base import DitherAlgorithm
+from retropal.core.dither.error_diffusion import (
+    BURKES_ALGORITHM,
+    JARVIS_JUDICE_NINKE_ALGORITHM,
+    SIERRA_ALGORITHM,
+    SIERRA_LITE_ALGORITHM,
+    STUCKI_ALGORITHM,
+)
 from retropal.core.dither.floyd_steinberg import ALGORITHM as FLOYD_STEINBERG
 from retropal.core.dither.none import ALGORITHM as NONE
 from retropal.core.dither.ordered import (
@@ -19,6 +26,11 @@ register(ATKINSON)
 register(BAYER_2_ALGORITHM)
 register(BAYER_4_ALGORITHM)
 register(BAYER_8_ALGORITHM)
+register(SIERRA_LITE_ALGORITHM)
+register(SIERRA_ALGORITHM)
+register(BURKES_ALGORITHM)
+register(STUCKI_ALGORITHM)
+register(JARVIS_JUDICE_NINKE_ALGORITHM)
 
 DITHER_IDS = list_dithers()
 
