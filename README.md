@@ -53,3 +53,26 @@ uv run ruff format --check .
 uv run pytest
 uv run retropal --version
 ```
+
+## Desktop GUI (M2)
+
+Install the optional Qt dependency and start the application:
+
+```bash
+uv sync --extra dev --extra gui --default-index https://pypi.org/simple
+uv run retropal gui
+```
+
+The GUI supports opening or dropping a PNG, side-by-side previews, palette and dithering
+selection, and PNG export. The conversion engine remains usable without Qt through the CLI.
+
+### Linux / ChromeOS Crostini
+
+If the native Wayland backend is unstable, start the GUI through the included
+XCB wrapper:
+
+```bash
+./scripts/run-gui-linux.sh
+```
+
+Set `QT_QPA_PLATFORM=wayland` explicitly to retry the native Wayland backend.

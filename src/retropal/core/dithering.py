@@ -31,8 +31,7 @@ def map_floyd_steinberg(image: Image.Image, palette: tuple[RGBColor, ...]) -> Im
     rgba = image.convert("RGBA")
     width, height = rgba.size
     work = [
-        [list(map(float, rgba.getpixel((x, y))[:3])) for x in range(width)]
-        for y in range(height)
+        [list(map(float, rgba.getpixel((x, y))[:3])) for x in range(width)] for y in range(height)
     ]
     alpha = [[rgba.getpixel((x, y))[3] for x in range(width)] for y in range(height)]
     output = Image.new("RGBA", rgba.size)

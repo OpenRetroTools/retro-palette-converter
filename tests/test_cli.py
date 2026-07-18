@@ -36,3 +36,11 @@ def test_convert_and_inspect_commands(tmp_path: Path, capsys: pytest.CaptureFixt
     assert target.exists()
     assert main(["inspect", str(target)]) == 0
     assert "Dimensions: 3x2" in capsys.readouterr().out
+
+
+def test_gui_command_delegates_to_application(monkeypatch, capsys) -> None:
+    import retropal.application
+
+    monkeypatch.setattr(retropal.application, "run_gui", lambda: 17)
+    assert main(["gui"]) == 17
+    assert capsys.readouterr().out == ""

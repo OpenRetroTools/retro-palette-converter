@@ -36,6 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     commands.add_parser("palettes", help="List available palettes.")
+    commands.add_parser("gui", help="Start the desktop application.")
     inspect_parser = commands.add_parser("inspect", help="Inspect a PNG image.")
     inspect_parser.add_argument("input", type=Path)
     return parser
@@ -47,6 +48,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command is None:
         parser.print_help()
         return 0
+    if args.command == "gui":
+        from retropal.application import run_gui
+
+        return run_gui()
     if args.command == "palettes":
         print("\n".join(PALETTE_IDS))
         return 0
