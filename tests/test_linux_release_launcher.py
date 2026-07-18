@@ -46,3 +46,9 @@ def test_adds_crostini_launcher_to_linux_zip(tmp_path: Path) -> None:
 
         mode = result.getinfo(launcher_name).external_attr >> 16
         assert mode & stat.S_IXUSR
+
+
+def test_replacement_archive_is_created_beside_destination() -> None:
+    source = SCRIPT.read_text(encoding="utf-8")
+    assert 'archive.with_name(f".{archive.name}.tmp")' in source
+    assert "Path(temp_dir) / archive.name" not in source

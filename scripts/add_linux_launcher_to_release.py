@@ -52,6 +52,7 @@ Use the included launcher:
 
 The launcher detects Crostini and selects Qt's XCB backend to avoid known
 Wayland connection failures. It does not force XCB on ordinary Linux systems.
+An explicitly configured QT_QPA_PLATFORM value is always respected.
 
 If the launcher is not executable after extraction:
 
@@ -72,18 +73,19 @@ Required Crostini packages when XCB libraries are missing:
 
 
 def update_zip(archive: Path) -> None:
+    """Add the launcher and notes, replacing *archive* atomically."""
+    archive = archive.resolve()
     if not archive.is_file():
         raise FileNotFoundError(f"Linux release archive not found: {archive}")
 
     with tempfile.TemporaryDirectory(prefix="retropal-linux-release-") as temp_dir:
-        temp = Path(temp_dir)
-        unpacked = temp / "unpacked"
+        unpacked = Path(temp_dir) / "unpacked"
         unpacked.mkdir()
 
         with zipfile.ZipFile(archive, "r") as source:
             source.extractall(unpacked)
 
-        roots = [path for path in unpacked.iterdir()]
+        roots = list(unpacked.iterdir())
         package_root = roots[0] if len(roots) == 1 and roots[0].is_dir() else unpacked
 
         launcher = package_root / LAUNCHER_NAME
@@ -93,26 +95,31 @@ def update_zip(archive: Path) -> None:
         notes = package_root / "README-LINUX.txt"
         notes.write_text(NOTES, encoding="utf-8", newline="\n")
 
-        replacement = temp / archive.name
-        with zipfile.ZipFile(
-            replacement,
-            "w",
-            compression=zipfile.ZIP_DEFLATED,
-        ) as destination:
-            for path in sorted(unpacked.rglob("*")):
-                if path.is_file():
-                    info = zipfile.ZipInfo.from_file(
-                        path,
-                        arcname=path.relative_to(unpacked),
-                    )
-                    with path.open("rb") as handle:
-                        destination.writestr(
-                            info,
-                            handle.read(),
-                            compress_type=zipfile.ZIP_DEFLATED,
+        # Create the replacement beside the destination. Path.replace() is then
+        # atomic and cannot fail with EXDEV when /tmp is a different filesystem.
+        replacement = archive.with_name(f".{archive.name}.tmp")
+        try:
+            with zipfile.ZipFile(
+                replacement,
+                "w",
+                compression=zipfile.ZIP_DEFLATED,
+            ) as destination:
+                for path in sorted(unpacked.rglob("*")):
+                    if path.is_file():
+                        info = zipfile.ZipInfo.from_file(
+                            path,
+                            arcname=path.relative_to(unpacked),
                         )
+                        with path.open("rb") as handle:
+                            destination.writestr(
+                                info,
+                                handle.read(),
+                                compress_type=zipfile.ZIP_DEFLATED,
+                            )
 
-        replacement.replace(archive)
+            replacement.replace(archive)
+        finally:
+            replacement.unlink(missing_ok=True)
 
 
 def main() -> int:

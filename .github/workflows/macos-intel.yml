@@ -6,7 +6,7 @@ on:
       tag:
         description: Existing release tag
         required: true
-        default: v0.1.0
+        default: v0.1.2
         type: string
       upload_to_release:
         description: Upload to existing GitHub Release

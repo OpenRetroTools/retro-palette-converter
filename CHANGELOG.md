@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.2 — 2026-07-18
+
+### Fixed
+
+- Added a Crostini-aware Linux launcher to release packages.
+- Use Qt's XCB backend automatically on ChromeOS/Crostini while leaving ordinary Linux unchanged.
+- Made Linux ZIP post-processing safe when temporary files and the repository are on different filesystems.
+- Added regression coverage for the packaged launcher and its executable permissions.
+
+### Changed
+
+- Updated Linux, ChromeOS, release, and itch.io documentation.
+- Updated release workflow defaults and the release checklist for v0.1.2.
+
 ## 0.1.0 — 2026-07-18
 
 - First public release.

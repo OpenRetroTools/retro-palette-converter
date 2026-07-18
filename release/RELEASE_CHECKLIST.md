@@ -1,13 +1,17 @@
-# v0.1.0 release checklist
+# v0.1.2 release checklist
 
-- [ ] Run `.delivery/m6/VERIFY.sh`
-- [ ] Test GUI with PNG, JPEG and BMP input
-- [ ] Test Game Boy and Amiga OCS 32 conversion
-- [ ] Export PNG, GPL and JSON
-- [ ] Push M6 commit to GitHub
-- [ ] Tag `v0.1.0` and push the tag
-- [ ] Download and smoke-test GitHub Actions artifacts
-- [ ] Create itch.io project and paste `release/itch/PAGE.md`
-- [ ] Upload with Butler or the itch.io web interface
-- [ ] Add at least three screenshots
-- [ ] Publish the itch.io page
+- [ ] Run `uv sync --python 3.12 --extra dev --extra gui --extra release`
+- [ ] Run `uv run ruff check .`
+- [ ] Run `uv run ruff format --check .`
+- [ ] Run `uv run pytest`
+- [ ] Run `./scripts/verify-release.sh`
+- [ ] Build the Linux package with Python 3.12
+- [ ] Add the Crostini-aware launcher to the Linux ZIP
+- [ ] Confirm `RetroPaletteConverter.sh` and `README-LINUX.txt` are present
+- [ ] Extract the Linux ZIP into a clean directory and start it on Crostini
+- [ ] Confirm the Windows, Linux, and macOS Apple Silicon workflows are green
+- [ ] Commit with `Release v0.1.2`
+- [ ] Tag `v0.1.2` and push the tag
+- [ ] Smoke-test the GitHub Release downloads
+- [ ] Run the itch.io publishing workflow for `v0.1.2`
+- [ ] Publish a short v0.1.2 devlog

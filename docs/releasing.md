@@ -6,8 +6,9 @@ Official binary packages are built only by GitHub Actions on native runners.
 
 - Linux x86_64
 - Windows x86_64
-- macOS Intel
 - macOS Apple Silicon
+
+macOS Intel is available through the separate manual workflow.
 
 PyInstaller is not a cross-compiler. Each package is generated on its target
 operating system.
@@ -25,9 +26,9 @@ workflow artifacts for 14 days.
 git status
 ./scripts/verify-release.sh
 
-git tag v0.1.0
+git tag v0.1.2
 git push origin main
-git push origin v0.1.0
+git push origin v0.1.2
 ```
 
 A version tag causes GitHub Actions to:
@@ -39,8 +40,8 @@ A version tag causes GitHub Actions to:
 
 ## itch.io
 
-Download the release ZIP files from the GitHub Release and push them with
-Butler using separate channels:
+The `Publish existing release to itch.io` workflow downloads packages from the
+GitHub Release and pushes them with Butler. Manual commands remain available:
 
 ```bash
 butler push retro-palette-converter-windows-x86_64.zip ACCOUNT/PROJECT:windows

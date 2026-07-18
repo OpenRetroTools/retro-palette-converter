@@ -27,12 +27,16 @@ uv sync --extra dev --extra gui --default-index https://pypi.org/simple
 uv run retropal gui
 ```
 
-Linux and ChromeOS Crostini users can use the included XCB launcher:
+During development on ChromeOS/Crostini, install the XCB runtime and use the development launcher:
 
 ```bash
 sudo apt install libxcb-cursor0
 ./scripts/run-gui-linux.sh
 ```
+
+The packaged Linux release includes `RetroPaletteConverter.sh`. It detects
+ChromeOS/Crostini and selects XCB only when required; ordinary Linux systems
+continue to use Qt's default display backend.
 
 ## CLI
 
@@ -81,5 +85,5 @@ Windows PowerShell:
 ./scripts/build-windows.ps1
 ```
 
-Pushing a version tag such as `v0.1.0` runs the GitHub release workflow and
-attaches Windows and Linux ZIP archives to the GitHub release.
+Pushing a version tag such as `v0.1.2` runs the GitHub release workflow and
+attaches Windows, Linux, and macOS Apple Silicon ZIP archives to the GitHub release.
