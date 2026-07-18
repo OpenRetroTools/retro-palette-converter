@@ -1,10 +1,24 @@
-"""Palette protocol definitions."""
+"""Palette types and metadata."""
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Protocol
 
 RGBColor = tuple[int, int, int]
+
+
+@dataclass(frozen=True, slots=True)
+class PaletteInfo:
+    id: str
+    name: str
+    family: str
+    manufacturer: str
+    year: int | None
+    color_count: int
+    description: str
+    tags: tuple[str, ...] = ()
+    adaptive: bool = False
 
 
 class Palette(Protocol):
@@ -16,3 +30,6 @@ class Palette(Protocol):
 
     @property
     def colors(self) -> tuple[RGBColor, ...]: ...
+
+    @property
+    def info(self) -> PaletteInfo: ...

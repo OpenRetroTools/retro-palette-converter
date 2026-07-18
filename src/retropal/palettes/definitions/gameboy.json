@@ -1,1 +1,34 @@
-{"id":"gameboy","name":"Game Boy","colors":[[15,56,15],[48,98,48],[139,172,15],[155,188,15]]}
+{
+  "id": "gameboy",
+  "name": "Game Boy",
+  "colors": [
+    [
+      15,
+      56,
+      15
+    ],
+    [
+      48,
+      98,
+      48
+    ],
+    [
+      139,
+      172,
+      15
+    ],
+    [
+      155,
+      188,
+      15
+    ]
+  ],
+  "family": "Nintendo",
+  "manufacturer": "Nintendo",
+  "year": 1989,
+  "description": "Original Game Boy four-shade green palette.",
+  "tags": [
+    "handheld",
+    "game-boy"
+  ]
+}

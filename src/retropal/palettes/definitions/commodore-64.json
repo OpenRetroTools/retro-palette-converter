@@ -1,0 +1,95 @@
+{
+  "id": "commodore-64",
+  "name": "Commodore 64 (VICE)",
+  "family": "Commodore",
+  "manufacturer": "Commodore",
+  "year": 1982,
+  "description": "A practical VICE-compatible RGB representation of the VIC-II 16-colour palette.",
+  "tags": [
+    "commodore",
+    "c64",
+    "vic-ii"
+  ],
+  "colors": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      255,
+      255,
+      255
+    ],
+    [
+      140,
+      62,
+      52
+    ],
+    [
+      122,
+      191,
+      199
+    ],
+    [
+      141,
+      71,
+      179
+    ],
+    [
+      104,
+      169,
+      65
+    ],
+    [
+      62,
+      49,
+      162
+    ],
+    [
+      208,
+      220,
+      113
+    ],
+    [
+      144,
+      95,
+      37
+    ],
+    [
+      87,
+      66,
+      0
+    ],
+    [
+      187,
+      119,
+      109
+    ],
+    [
+      84,
+      84,
+      84
+    ],
+    [
+      128,
+      128,
+      128
+    ],
+    [
+      172,
+      234,
+      136
+    ],
+    [
+      124,
+      112,
+      218
+    ],
+    [
+      171,
+      171,
+      171
+    ]
+  ]
+}

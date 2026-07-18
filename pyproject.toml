@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "retro-palette-converter"
-version = "0.1.2"
+dynamic = ["version"]
 description = "A small cross-platform tool for converting images to retro palettes."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -46,3 +46,6 @@ branch = true
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
+
+[tool.hatch.version]
+path = "src/retropal/__init__.py"

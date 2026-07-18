@@ -12,6 +12,7 @@ hardware-inspired retro palettes.
 - Alpha preservation
 - Drag and drop, synchronized zoom, pan, fit, and 100% view
 - Batch conversion from both the GUI and CLI
+- Visual dithering comparison with click-to-select previews
 - Lightweight CLI without Qt
 
 ## Development installation
@@ -93,9 +94,15 @@ attaches Windows, Linux, and macOS Apple Silicon ZIP archives to the GitHub rele
 ### Extensible dithering
 
 Dithering choices are provided by a shared registry used by both the CLI and desktop GUI.
+Use **Tools → Compare Dithering…** after opening an image to preview several algorithms side by side and apply the preferred result.
 M2.2a includes `none` and `floyd-steinberg`; additional algorithms can be registered without
 changing command-line or GUI option lists.
 
 ## Dithering
 
 Available modes: none, Floyd–Steinberg, Atkinson, Bayer 2×2, Bayer 4×4, Bayer 8×8, Sierra Lite, Sierra, Burkes, Stucki, and Jarvis–Judice–Ninke.
+
+
+## Platform palettes
+
+The built-in collection includes Amiga OCS/ECS/AGA, Commodore 64, VIC-20, Commodore Plus/4, Game Boy, EGA, PICO-8, and DawnBringer 16. Use `retropal palettes --verbose` to inspect metadata.

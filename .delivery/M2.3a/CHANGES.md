@@ -1,0 +1,5 @@
+- Palette metadata model and query API
+- Commodore 64, VIC-20, and Plus/4 fixed palettes
+- Amiga ECS 64 and AGA 256 adaptive profiles
+- Verbose palette CLI output
+- Development version 0.2.0.dev1 used by CLI and Help → About

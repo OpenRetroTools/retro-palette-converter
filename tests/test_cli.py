@@ -100,3 +100,11 @@ def test_cli_dither_choices_come_from_registry() -> None:
     convert_parser = subparsers.choices["convert"]
     dither_action = next(action for action in convert_parser._actions if action.dest == "dither")
     assert tuple(dither_action.choices) == DITHER_IDS
+
+
+def test_palettes_verbose_command(capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["palettes", "--verbose"]) == 0
+    output = capsys.readouterr().out
+    assert "commodore-64: Commodore 64 (VICE)" in output
+    assert "amiga-aga-256: Amiga AGA 256" in output
+    assert "Manufacturer: Commodore" in output

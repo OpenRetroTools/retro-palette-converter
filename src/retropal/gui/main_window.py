@@ -25,6 +25,7 @@ from PySide6.QtWidgets import (
 from retropal import __version__
 from retropal.core.dither import iter_dithers
 from retropal.gui.batch_dialog import BatchConvertDialog
+from retropal.gui.compare_dialog import CompareDitheringDialog
 from retropal.gui.controller import ConverterController
 from retropal.gui.image_view import ImageView
 from retropal.gui.palette_view import PaletteView
@@ -61,6 +62,9 @@ class MainWindow(QMainWindow):
         self._batch_action = QAction("&Batch Convert…", self)
         self._batch_action.triggered.connect(self.open_batch_dialog)
 
+        self._compare_action = QAction("&Compare Dithering…", self)
+        self._compare_action.triggered.connect(self.open_compare_dialog)
+
         self._export_palette_action = QAction("Export &Palette…", self)
         self._export_palette_action.triggered.connect(self.export_palette)
 
@@ -78,6 +82,8 @@ class MainWindow(QMainWindow):
         file_menu.addAction(self._export_palette_action)
         file_menu.addSeparator()
         file_menu.addAction(quit_action)
+        tools_menu = self.menuBar().addMenu("&Tools")
+        tools_menu.addAction(self._compare_action)
         self.menuBar().addMenu("&Help").addAction(about_action)
 
     def _build_toolbar(self) -> None:
@@ -161,6 +167,22 @@ class MainWindow(QMainWindow):
         start_dir = Path(self._settings.value("lastDirectory", str(Path.home()), type=str))
         dialog = BatchConvertDialog(self, start_dir=start_dir)
         dialog.exec()
+
+    def open_compare_dialog(self) -> None:
+        if self._controller.source_image is None:
+            return
+        current_dither = self._dither_combo.currentData()
+        dialog = CompareDitheringDialog(
+            self._controller.source_image,
+            self._palette_combo.currentText(),
+            current_dither,
+            self,
+        )
+        if dialog.exec() != dialog.DialogCode.Accepted:
+            return
+        index = self._dither_combo.findData(dialog.selected_dither_id)
+        if index >= 0:
+            self._dither_combo.setCurrentIndex(index)
 
     def load_path(self, path: Path) -> None:
         try:
@@ -269,6 +291,7 @@ class MainWindow(QMainWindow):
         self._export_button.setEnabled(enabled)
         self._export_action.setEnabled(enabled)
         self._export_palette_action.setEnabled(enabled)
+        self._compare_action.setEnabled(enabled)
 
     def _fit_views(self) -> None:
         self._original_view.fit_image()

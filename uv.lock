@@ -346,7 +346,6 @@ wheels = [
 
 [[package]]
 name = "retro-palette-converter"
-version = "0.1.2"
 source = { editable = "." }
 dependencies = [
     { name = "pillow" },
@@ -374,7 +373,7 @@ requires-dist = [
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.9" },
 ]
-provides-extras = ["gui", "dev", "release"]
+provides-extras = ["dev", "gui", "release"]
 
 [[package]]
 name = "ruff"

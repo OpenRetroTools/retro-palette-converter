@@ -12,7 +12,7 @@ from retropal.core.converter import convert_file
 from retropal.core.dither import DITHER_IDS
 from retropal.core.image_io import inspect_image
 from retropal.core.models import DitherMode
-from retropal.palettes import PALETTE_IDS
+from retropal.palettes import PALETTE_IDS, iter_palette_info
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -63,7 +63,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Show what would be converted without writing files.",
     )
 
-    commands.add_parser("palettes", help="List available palettes.")
+    palettes_parser = commands.add_parser("palettes", help="List available palettes.")
+    palettes_parser.add_argument("--verbose", "-v", action="store_true")
     commands.add_parser("gui", help="Start the desktop application.")
     inspect_parser = commands.add_parser("inspect", help="Inspect a PNG image.")
     inspect_parser.add_argument("input", type=Path)
@@ -81,7 +82,17 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         return run_gui()
     if args.command == "palettes":
-        print("\n".join(PALETTE_IDS))
+        if not args.verbose:
+            print("\n".join(PALETTE_IDS))
+            return 0
+        for info in iter_palette_info():
+            mode = "adaptive" if info.adaptive else "fixed"
+            print(f"{info.id}: {info.name}")
+            print(f"  Family: {info.family}")
+            print(f"  Manufacturer: {info.manufacturer}")
+            print(f"  Year: {info.year if info.year is not None else 'unknown'}")
+            print(f"  Colours: {info.color_count} ({mode})")
+            print(f"  {info.description}")
         return 0
     if args.command == "inspect":
         info = inspect_image(args.input)

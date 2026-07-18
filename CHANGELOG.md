@@ -2,6 +2,8 @@
 
 ### Added
 
+- Added a Compare Dithering dialog with selectable side-by-side previews.
+- Added click-to-select integration that applies the chosen algorithm to the main preview.
 - Atkinson error-diffusion dithering.
 - Bayer 2×2, 4×4, and 8×8 ordered dithering.
 - Added Sierra Lite, Sierra, Burkes, Stucki, and Jarvis–Judice–Ninke dithering.
@@ -14,6 +16,13 @@
 # Changelog
 
 ## Unreleased
+
+### M2.3a
+
+- Added palette metadata and metadata queries.
+- Added Commodore 64, VIC-20, Plus/4, Amiga ECS 64, and Amiga AGA 256 profiles.
+- Added `retropal palettes --verbose`.
+- Updated the development version shown by CLI and Help → About to 0.2.0.dev1.
 
 
 ### Added

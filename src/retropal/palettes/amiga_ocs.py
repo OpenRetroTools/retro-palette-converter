@@ -20,8 +20,8 @@ def quantize_color_to_ocs(color: RGBColor) -> RGBColor:
 
 
 def generate_ocs_palette(image: Image.Image, color_count: int) -> tuple[RGBColor, ...]:
-    if color_count not in {16, 32}:
-        raise ValueError("Amiga OCS palettes currently support 16 or 32 colors.")
+    if color_count not in {16, 32, 64}:
+        raise ValueError("Amiga OCS palettes currently support 16, 32, or 64 colors.")
 
     rgba = image.convert("RGBA")
     opaque_rgb = [(r, g, b) for r, g, b, alpha in rgba.get_flattened_data() if alpha > 0]
