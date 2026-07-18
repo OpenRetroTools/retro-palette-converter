@@ -1,7 +1,8 @@
-tool
 pixel-art
+tools
 retro
-image-converter
-amiga
+graphics
+image-processing
 game-development
+amiga
 open-source

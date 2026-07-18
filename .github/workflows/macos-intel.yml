@@ -1,0 +1,52 @@
+name: Build optional macOS Intel package
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag
+        required: true
+        default: v0.1.0
+        type: string
+      upload_to_release:
+        description: Upload to existing GitHub Release
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build macOS Intel
+    runs-on: macos-13
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.tag }}
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv python install 3.12
+      - run: uv sync --python 3.12 --extra dev --extra gui
+      - name: Run checks
+        run: |
+          uv run ruff format --check .
+          uv run ruff check .
+          uv run pytest
+      - name: Build native package
+        run: uv run --with pyinstaller python scripts/build_release.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: retro-palette-converter-macos-intel
+          path: dist/retro-palette-converter-macos-x86_64.zip
+          if-no-files-found: error
+          retention-days: 14
+      - name: Attach package to existing release
+        if: inputs.upload_to_release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ inputs.tag }}"             dist/retro-palette-converter-macos-x86_64.zip             --clobber
