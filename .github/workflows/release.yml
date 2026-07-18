@@ -20,8 +20,6 @@ jobs:
             label: Linux x86_64
           - os: windows-latest
             label: Windows x86_64
-          - os: macos-13
-            label: macOS Intel
           - os: macos-14
             label: macOS Apple Silicon
 
