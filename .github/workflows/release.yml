@@ -52,6 +52,11 @@ jobs:
       - name: Build native package
         run: uv run --with pyinstaller python scripts/build_release.py
 
+      - name: Add Crostini-aware Linux launcher
+        if: runner.os == 'Linux'
+        run: |
+          uv run python scripts/add_linux_launcher_to_release.py
+
       - name: Upload native package
         uses: actions/upload-artifact@v4
         with:
