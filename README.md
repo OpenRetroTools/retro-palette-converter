@@ -95,3 +95,7 @@ attaches Windows, Linux, and macOS Apple Silicon ZIP archives to the GitHub rele
 Dithering choices are provided by a shared registry used by both the CLI and desktop GUI.
 M2.2a includes `none` and `floyd-steinberg`; additional algorithms can be registered without
 changing command-line or GUI option lists.
+
+## Dithering
+
+Available modes: none, Floyd–Steinberg, Atkinson, Bayer 2×2, Bayer 4×4, and Bayer 8×8.

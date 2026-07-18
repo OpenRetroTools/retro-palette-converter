@@ -9,6 +9,10 @@ from enum import StrEnum
 class DitherMode(StrEnum):
     NONE = "none"
     FLOYD_STEINBERG = "floyd-steinberg"
+    ATKINSON = "atkinson"
+    BAYER_2X2 = "bayer-2x2"
+    BAYER_4X4 = "bayer-4x4"
+    BAYER_8X8 = "bayer-8x8"
 
 
 @dataclass(frozen=True, slots=True)

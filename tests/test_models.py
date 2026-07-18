@@ -19,3 +19,7 @@ def test_image_info_is_immutable() -> None:
 def test_dither_mode_values() -> None:
     assert DitherMode.NONE.value == "none"
     assert DitherMode.FLOYD_STEINBERG.value == "floyd-steinberg"
+    assert DitherMode.ATKINSON.value == "atkinson"
+    assert DitherMode.BAYER_2X2.value == "bayer-2x2"
+    assert DitherMode.BAYER_4X4.value == "bayer-4x4"
+    assert DitherMode.BAYER_8X8.value == "bayer-8x8"

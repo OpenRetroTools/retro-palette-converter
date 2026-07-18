@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+### Added
+
+- Atkinson error-diffusion dithering.
+- Bayer 2×2, 4×4, and 8×8 ordered dithering.
+
 ### Changed
 
 - Refactored dithering into an extensible registry shared by the converter, CLI, and GUI.
