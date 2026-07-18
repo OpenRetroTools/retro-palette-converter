@@ -44,3 +44,46 @@ def test_gui_command_delegates_to_application(monkeypatch, capsys) -> None:
     monkeypatch.setattr(retropal.application, "run_gui", lambda: 17)
     assert main(["gui"]) == 17
     assert capsys.readouterr().out == ""
+
+
+def test_batch_command_converts_directory(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    source_dir = tmp_path / "source"
+    target_dir = tmp_path / "target"
+    source_dir.mkdir()
+    Image.new("RGBA", (2, 2), (100, 150, 200, 255)).save(source_dir / "image.png")
+
+    assert main(["batch", str(source_dir), str(target_dir), "--palette", "ega"]) == 0
+
+    assert (target_dir / "image.png").exists()
+    assert "Summary: converted=1 skipped=0 failed=0" in capsys.readouterr().out
+
+
+def test_batch_command_dry_run_and_no_recursive(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    source_dir = tmp_path / "source"
+    target_dir = tmp_path / "target"
+    nested = source_dir / "nested"
+    nested.mkdir(parents=True)
+    Image.new("RGBA", (2, 2), (100, 150, 200, 255)).save(nested / "image.png")
+
+    assert (
+        main(
+            [
+                "batch",
+                str(source_dir),
+                str(target_dir),
+                "--palette",
+                "ega",
+                "--dry-run",
+                "--no-recursive",
+            ]
+        )
+        == 0
+    )
+
+    assert not target_dir.exists()
+    assert "Summary: converted=0 skipped=0 failed=0" in capsys.readouterr().out

@@ -7,6 +7,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from retropal import __version__
+from retropal.core.batch import convert_batch
 from retropal.core.converter import convert_file
 from retropal.core.image_io import inspect_image
 from retropal.core.models import DitherMode
@@ -33,6 +34,32 @@ def build_parser() -> argparse.ArgumentParser:
         "--dither",
         choices=tuple(mode.value for mode in DitherMode),
         default=DitherMode.NONE.value,
+    )
+
+    batch_parser = commands.add_parser("batch", help="Convert a directory of images.")
+    batch_parser.add_argument("input", type=Path)
+    batch_parser.add_argument("output", type=Path)
+    batch_parser.add_argument("--palette", choices=PALETTE_IDS, required=True)
+    batch_parser.add_argument(
+        "--dither",
+        choices=tuple(mode.value for mode in DitherMode),
+        default=DitherMode.NONE.value,
+    )
+    batch_parser.add_argument(
+        "--recursive",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Include subdirectories (default: enabled).",
+    )
+    batch_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Replace existing output files.",
+    )
+    batch_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be converted without writing files.",
     )
 
     commands.add_parser("palettes", help="List available palettes.")
@@ -67,5 +94,29 @@ def main(argv: Sequence[str] | None = None) -> int:
         convert_file(args.input, args.output, args.palette, DitherMode(args.dither))
         print(f"Wrote {args.output}")
         return 0
+    if args.command == "batch":
+        result = convert_batch(
+            args.input,
+            args.output,
+            args.palette,
+            DitherMode(args.dither),
+            recursive=args.recursive,
+            overwrite=args.overwrite,
+            dry_run=args.dry_run,
+        )
+        action = "Would write" if args.dry_run else "Wrote"
+        for path in result.converted:
+            print(f"{action} {path}")
+        for path in result.skipped:
+            print(f"Skipped existing {path}")
+        for failure in result.failures:
+            print(f"Failed {failure.source}: {failure.message}")
+        print(
+            "Summary: "
+            f"converted={len(result.converted)} "
+            f"skipped={len(result.skipped)} "
+            f"failed={len(result.failures)}"
+        )
+        return 0 if result.success else 1
     parser.error(f"Unknown command: {args.command}")
     return 2
