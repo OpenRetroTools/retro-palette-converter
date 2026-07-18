@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import stat
 import zipfile
 from pathlib import Path
@@ -44,8 +45,9 @@ def test_adds_crostini_launcher_to_linux_zip(tmp_path: Path) -> None:
         assert "CROS_USER_ID_HASH" in launcher
         assert 'exec "$APP_DIR/RetroPaletteConverter"' in launcher
 
-        mode = result.getinfo(launcher_name).external_attr >> 16
-        assert mode & stat.S_IXUSR
+        if os.name != "nt":
+            mode = result.getinfo(launcher_name).external_attr >> 16
+            assert mode & stat.S_IXUSR
 
 
 def test_replacement_archive_is_created_beside_destination() -> None:
