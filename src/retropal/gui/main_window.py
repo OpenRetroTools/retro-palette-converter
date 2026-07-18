@@ -133,9 +133,7 @@ class MainWindow(QMainWindow):
         palette_row = QHBoxLayout()
         self._palette_view = PaletteView()
         self._palette_metadata = QLabel("No palette generated")
-        self._palette_metadata.setTextInteractionFlags(
-            Qt.TextInteractionFlag.TextSelectableByMouse
-        )
+        self._palette_metadata.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         palette_row.addWidget(self._palette_view, stretch=1)
         palette_row.addWidget(self._palette_metadata)
         root.addLayout(palette_row)
@@ -186,9 +184,7 @@ class MainWindow(QMainWindow):
         if self._palette_combo.currentText().startswith("amiga-ocs-"):
             from retropal.core.palette_export import amiga_ocs_word
 
-            words = " ".join(
-                amiga_ocs_word(color) for color in self._controller.result_palette
-            )
+            words = " ".join(amiga_ocs_word(color) for color in self._controller.result_palette)
             metadata += f" · OCS 12-bit RGB\n{words}"
         self._palette_metadata.setText(metadata)
         self.statusBar().showMessage(
@@ -240,9 +236,7 @@ class MainWindow(QMainWindow):
             return
         output = Path(filename)
         if output.suffix.lower() not in {".gpl", ".json"}:
-            output = output.with_suffix(
-                ".json" if "JSON" in selected_filter else ".gpl"
-            )
+            output = output.with_suffix(".json" if "JSON" in selected_filter else ".gpl")
         try:
             self._controller.export_palette(output)
         except (OSError, ValueError, RuntimeError) as exc:

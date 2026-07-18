@@ -1,0 +1,7 @@
+tool
+pixel-art
+retro
+image-converter
+amiga
+game-development
+open-source

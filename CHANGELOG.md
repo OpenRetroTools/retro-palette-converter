@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.0 — 2026-07-18
+
+- First public release.
+- Added reproducible Windows and Linux packaging.
+- Added GitHub release workflow and itch.io release material.
+- Added palette preview and GPL/JSON palette export.
+
 ## 0.1.0rc2
 
 - Display the colors actually used by the converted image.

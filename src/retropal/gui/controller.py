@@ -60,9 +60,7 @@ class ConverterController:
     def suggested_output_path(self) -> Path:
         if self.source_path is None:
             raise RuntimeError("No source image loaded")
-        return self.source_path.with_name(
-            f"{self.source_path.stem}-{self.palette_id}.png"
-        )
+        return self.source_path.with_name(f"{self.source_path.stem}-{self.palette_id}.png")
 
     def export(self, path: Path) -> Path:
         if self.converted_image is None:

@@ -66,3 +66,20 @@ Licensed under the MIT License.
 - Palette preview with used-color count
 - GPL and JSON palette export
 - Amiga OCS `$RGB` metadata
+
+## Release builds
+
+Linux:
+
+```bash
+./scripts/build-linux.sh
+```
+
+Windows PowerShell:
+
+```powershell
+./scripts/build-windows.ps1
+```
+
+Pushing a version tag such as `v0.1.0` runs the GitHub release workflow and
+attaches Windows and Linux ZIP archives to the GitHub release.
