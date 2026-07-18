@@ -36,9 +36,10 @@ jobs:
             --dir dist
 
       - name: Install Butler
-        env:
-          GH_TOKEN: ${{ github.token }}
         uses: remarkablegames/setup-butler@v2
+
+      - name: Verify Butler
+        run: butler --version
 
       - name: Publish available channels
         run: |
