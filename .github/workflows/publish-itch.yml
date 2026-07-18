@@ -1,0 +1,71 @@
+name: Publish existing release to itch.io
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing GitHub release tag
+        required: true
+        default: v0.1.0
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: itch.io
+    env:
+      BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+      ITCH_TARGET: ${{ vars.ITCH_TARGET }}
+    steps:
+      - name: Check configuration
+        run: |
+          test -n "${BUTLER_API_KEY}" || { echo "::error::Missing BUTLER_API_KEY"; exit 1; }
+          test -n "${ITCH_TARGET}" || { echo "::error::Missing ITCH_TARGET"; exit 1; }
+
+      - name: Download GitHub Release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p dist
+          gh release download "${{ inputs.tag }}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --pattern "retro-palette-converter-*.zip" \
+            --dir dist
+
+      - name: Install Butler
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/butler"
+          gh release download \
+            --repo itchio/butler \
+            --pattern "butler-linux-amd64.zip" \
+            --dir "$RUNNER_TEMP/butler"
+          unzip -q "$RUNNER_TEMP/butler/butler-linux-amd64.zip" \
+            -d "$RUNNER_TEMP/butler"
+          chmod +x "$RUNNER_TEMP/butler/butler"
+          echo "$RUNNER_TEMP/butler" >> "$GITHUB_PATH"
+
+      - name: Publish available channels
+        run: |
+          version="${{ inputs.tag }}"
+          version="${version#v}"
+
+          publish_if_present() {
+            file="$1"
+            channel="$2"
+            if [[ -f "$file" ]]; then
+              butler push "$file" "${ITCH_TARGET}:${channel}" \
+                --userversion "$version"
+            else
+              echo "Skipping unavailable package: $file"
+            fi
+          }
+
+          publish_if_present dist/retro-palette-converter-windows-x86_64.zip windows
+          publish_if_present dist/retro-palette-converter-linux-x86_64.zip linux
+          publish_if_present dist/retro-palette-converter-macos-arm64.zip macos-apple-silicon
+          publish_if_present dist/retro-palette-converter-macos-x86_64.zip macos-intel
