@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import importlib.util
-import os
 import stat
 import zipfile
 from pathlib import Path
@@ -26,10 +25,11 @@ def test_adds_crostini_launcher_to_linux_zip(tmp_path: Path) -> None:
     archive = tmp_path / "retro-palette-converter-linux-x86_64.zip"
 
     with zipfile.ZipFile(archive, "w") as output:
-        output.writestr(
-            "RetroPaletteConverter/RetroPaletteConverter",
-            b"fake executable",
-        )
+        for executable in ("RetroPaletteConverter", "retropal"):
+            info = zipfile.ZipInfo(f"RetroPaletteConverter/{executable}")
+            info.create_system = 3
+            info.external_attr = (stat.S_IFREG | 0o755) << 16
+            output.writestr(info, b"fake executable")
 
     module.update_zip(archive)
 
@@ -45,9 +45,14 @@ def test_adds_crostini_launcher_to_linux_zip(tmp_path: Path) -> None:
         assert "CROS_USER_ID_HASH" in launcher
         assert 'exec "$APP_DIR/RetroPaletteConverter"' in launcher
 
-        if os.name != "nt":
-            mode = result.getinfo(launcher_name).external_attr >> 16
-            assert mode & stat.S_IXUSR
+        executable_names = (
+            "RetroPaletteConverter/RetroPaletteConverter",
+            "RetroPaletteConverter/retropal",
+            launcher_name,
+        )
+        for name in executable_names:
+            mode = result.getinfo(name).external_attr >> 16
+            assert stat.S_IMODE(mode) == 0o755
 
 
 def test_replacement_archive_is_created_beside_destination() -> None:

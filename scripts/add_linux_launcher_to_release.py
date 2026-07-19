@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import argparse
+import copy
+import shutil
 import stat
-import tempfile
 import zipfile
 from pathlib import Path
+from pathlib import PurePosixPath
 
 LAUNCHER_NAME = "RetroPaletteConverter.sh"
+EXECUTABLE_NAMES = {"RetroPaletteConverter", "retropal", LAUNCHER_NAME}
 
 LAUNCHER = r"""#!/usr/bin/env bash
 set -euo pipefail
@@ -78,48 +81,51 @@ def update_zip(archive: Path) -> None:
     if not archive.is_file():
         raise FileNotFoundError(f"Linux release archive not found: {archive}")
 
-    with tempfile.TemporaryDirectory(prefix="retropal-linux-release-") as temp_dir:
-        unpacked = Path(temp_dir) / "unpacked"
-        unpacked.mkdir()
-
+    # Repack directly from the original ZipInfo records. Extracting first loses
+    # Unix modes because ZipFile.extractall() does not restore permission bits.
+    replacement = archive.with_name(f".{archive.name}.tmp")
+    try:
         with zipfile.ZipFile(archive, "r") as source:
-            source.extractall(unpacked)
+            entries = source.infolist()
+            top_levels = {PurePosixPath(info.filename).parts[0] for info in entries}
+            prefix = f"{top_levels.pop()}/" if len(top_levels) == 1 else ""
+            added_names = {f"{prefix}{LAUNCHER_NAME}", f"{prefix}README-LINUX.txt"}
 
-        roots = list(unpacked.iterdir())
-        package_root = roots[0] if len(roots) == 1 and roots[0].is_dir() else unpacked
-
-        launcher = package_root / LAUNCHER_NAME
-        launcher.write_text(LAUNCHER, encoding="utf-8", newline="\n")
-        launcher.chmod(launcher.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-
-        notes = package_root / "README-LINUX.txt"
-        notes.write_text(NOTES, encoding="utf-8", newline="\n")
-
-        # Create the replacement beside the destination. Path.replace() is then
-        # atomic and cannot fail with EXDEV when /tmp is a different filesystem.
-        replacement = archive.with_name(f".{archive.name}.tmp")
-        try:
             with zipfile.ZipFile(
                 replacement,
                 "w",
                 compression=zipfile.ZIP_DEFLATED,
             ) as destination:
-                for path in sorted(unpacked.rglob("*")):
-                    if path.is_file():
-                        info = zipfile.ZipInfo.from_file(
-                            path,
-                            arcname=path.relative_to(unpacked),
-                        )
-                        with path.open("rb") as handle:
-                            destination.writestr(
-                                info,
-                                handle.read(),
-                                compress_type=zipfile.ZIP_DEFLATED,
-                            )
+                destination.comment = source.comment
+                for original_info in entries:
+                    if original_info.filename in added_names:
+                        continue
+                    info = copy.copy(original_info)
+                    if PurePosixPath(info.filename).name in EXECUTABLE_NAMES:
+                        info.create_system = 3
+                        info.external_attr = (stat.S_IFREG | 0o755) << 16
+                    with source.open(original_info) as source_file:
+                        with destination.open(
+                            info, "w", force_zip64=True
+                        ) as output_file:
+                            shutil.copyfileobj(source_file, output_file)
 
-            replacement.replace(archive)
-        finally:
-            replacement.unlink(missing_ok=True)
+                for name, data, mode in (
+                    (f"{prefix}{LAUNCHER_NAME}", LAUNCHER.encode(), 0o755),
+                    (f"{prefix}README-LINUX.txt", NOTES.encode(), 0o644),
+                ):
+                    info = zipfile.ZipInfo(name)
+                    info.create_system = 3
+                    info.external_attr = (stat.S_IFREG | mode) << 16
+                    destination.writestr(
+                        info,
+                        data,
+                        compress_type=zipfile.ZIP_DEFLATED,
+                    )
+
+        replacement.replace(archive)
+    finally:
+        replacement.unlink(missing_ok=True)
 
 
 def main() -> int:
