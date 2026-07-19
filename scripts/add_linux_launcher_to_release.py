@@ -7,8 +7,7 @@ import copy
 import shutil
 import stat
 import zipfile
-from pathlib import Path
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 LAUNCHER_NAME = "RetroPaletteConverter.sh"
 EXECUTABLE_NAMES = {"RetroPaletteConverter", "retropal", LAUNCHER_NAME}
@@ -104,11 +103,11 @@ def update_zip(archive: Path) -> None:
                     if PurePosixPath(info.filename).name in EXECUTABLE_NAMES:
                         info.create_system = 3
                         info.external_attr = (stat.S_IFREG | 0o755) << 16
-                    with source.open(original_info) as source_file:
-                        with destination.open(
-                            info, "w", force_zip64=True
-                        ) as output_file:
-                            shutil.copyfileobj(source_file, output_file)
+                    with (
+                        source.open(original_info) as source_file,
+                        destination.open(info, "w", force_zip64=True) as output_file,
+                    ):
+                        shutil.copyfileobj(source_file, output_file)
 
                 for name, data, mode in (
                     (f"{prefix}{LAUNCHER_NAME}", LAUNCHER.encode(), 0o755),
