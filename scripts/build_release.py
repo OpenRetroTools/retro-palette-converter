@@ -7,6 +7,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -53,6 +54,8 @@ def build() -> None:
         str(WORK),
         "--specpath",
         str(WORK),
+        "--additional-hooks-dir",
+        str(ROOT / "packaging" / "hooks"),
         "--exclude-module",
         "PySide6.QtWebEngineCore",
         "--exclude-module",
@@ -92,12 +95,33 @@ def build() -> None:
 
     run(*args)
 
+    if platform.system() == "Linux":
+        run(
+            sys.executable,
+            str(ROOT / "scripts" / "verify_linux_qt_plugins.py"),
+            str(DIST / APP_NAME),
+        )
+        run(
+            sys.executable,
+            str(ROOT / "scripts" / "verify_packaged_palettes.py"),
+            str(DIST / APP_NAME),
+        )
+
 
 def add_release_files(bundle: Path) -> None:
     for name in ("README.md", "LICENSE", "CHANGELOG.md"):
         source = ROOT / name
         if source.exists():
             shutil.copy2(source, bundle / name)
+
+
+def add_linux_release_files(bundle: Path) -> None:
+    """Add the preferred Linux launcher and platform notes to the bundle."""
+    packaging = ROOT / "packaging" / "linux"
+    launcher = bundle / "RetroPaletteConverter.sh"
+    shutil.copy2(packaging / launcher.name, launcher)
+    launcher.chmod(0o755)
+    shutil.copy2(packaging / "README-LINUX.txt", bundle / "README-LINUX.txt")
 
 
 def archive() -> Path:
@@ -109,8 +133,8 @@ def archive() -> Path:
     if system == "Windows":
         bundle = DIST / APP_NAME
         add_release_files(bundle)
-        base = DIST / f"retro-palette-converter-windows-{machine}"
-        archive_path = Path(shutil.make_archive(str(base), "zip", DIST, APP_NAME))
+        archive_path = DIST / f"retro-palette-converter-windows-{machine}.zip"
+        make_zip_atomically(archive_path, APP_NAME)
     elif system == "Darwin":
         app = DIST / f"{APP_NAME}.app"
         if not app.exists():
@@ -119,20 +143,40 @@ def archive() -> Path:
         extras.mkdir(exist_ok=True)
         add_release_files(extras)
         archive_path = DIST / f"retro-palette-converter-macos-{machine}.zip"
-        if archive_path.exists():
-            archive_path.unlink()
-        # ditto preserves bundle metadata and symlinks correctly.
-        run("ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", str(app), str(archive_path))
+        archive_path.unlink(missing_ok=True)
+        with tempfile.TemporaryDirectory(prefix=".archive-", dir=DIST) as temp_dir:
+            temporary_archive = Path(temp_dir) / archive_path.name
+            # ditto preserves bundle metadata and symlinks correctly.
+            run(
+                "ditto",
+                "-c",
+                "-k",
+                "--sequesterRsrc",
+                "--keepParent",
+                str(app),
+                str(temporary_archive),
+            )
+            temporary_archive.replace(archive_path)
     elif system == "Linux":
         bundle = DIST / APP_NAME
         add_release_files(bundle)
-        base = DIST / f"retro-palette-converter-linux-{machine}"
-        archive_path = Path(shutil.make_archive(str(base), "zip", DIST, APP_NAME))
+        add_linux_release_files(bundle)
+        archive_path = DIST / f"retro-palette-converter-linux-{machine}.zip"
+        make_zip_atomically(archive_path, APP_NAME)
     else:
         raise RuntimeError(f"Unsupported build platform: {system}")
 
     print(f"Created {archive_path}")
     return archive_path
+
+
+def make_zip_atomically(archive_path: Path, bundle_name: str) -> None:
+    """Create a ZIP without exposing an incomplete artifact at its final path."""
+    archive_path.unlink(missing_ok=True)
+    with tempfile.TemporaryDirectory(prefix=".archive-", dir=DIST) as temp_dir:
+        temporary_base = Path(temp_dir) / archive_path.stem
+        temporary_archive = Path(shutil.make_archive(str(temporary_base), "zip", DIST, bundle_name))
+        temporary_archive.replace(archive_path)
 
 
 def main() -> int:
