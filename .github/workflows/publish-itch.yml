@@ -36,7 +36,7 @@ jobs:
             --dir dist
 
       - name: Install Butler
-        uses: remarkablegames/setup-butler@v2
+        uses: remarkablegames/setup-butler@v3
 
       - name: Verify Butler
         run: butler --version
