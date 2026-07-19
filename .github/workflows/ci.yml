@@ -17,6 +17,34 @@ jobs:
         with:
           enable-cache: true
       - run: uv python install 3.12
+      # PySide6's Qt6Gui/Qt6Widgets shared libraries are linked against
+      # libEGL/libGL and several libxcb/libxkbcommon libraries. Windows and
+      # macOS runners already provide these; ubuntu-latest does not, which is
+      # what causes `import PySide6.QtGui` to fail during test collection
+      # with "libEGL.so.1: cannot open shared object file". No test here
+      # instantiates a QApplication (only application.py's run_gui() does),
+      # so no display server is required -- installing the missing shared
+      # libraries is the correct, minimal fix and keeps GUI test coverage on
+      # Linux rather than skipping it.
+      - name: Install Qt runtime libraries (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libegl1 \
+            libgl1 \
+            libxkbcommon0 \
+            libxkbcommon-x11-0 \
+            libdbus-1-3 \
+            libxcb-cursor0 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-shape0 \
+            libxcb-xinerama0 \
+            libxcb-xkb1
       - run: uv sync --extra dev --extra gui
       - run: uv run ruff format --check src tests
       - run: uv run ruff check .
