@@ -23,10 +23,10 @@ jobs:
     runs-on: macos-13
     timeout-minutes: 180
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.tag }}
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v8
         with:
           enable-cache: true
       - run: uv python install 3.12
@@ -38,7 +38,7 @@ jobs:
           uv run pytest
       - name: Build native package
         run: uv run --with pyinstaller python scripts/build_release.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: retro-palette-converter-macos-intel
           path: dist/retro-palette-converter-macos-x86_64.zip
