@@ -21,6 +21,11 @@ class PaletteView(QWidget):
         self._colors = colors
         self.update()
 
+    @property
+    def colors(self) -> tuple[RGBColor, ...]:
+        """Return the colors currently displayed by the widget."""
+        return self._colors
+
     def sizeHint(self) -> QSize:  # noqa: N802 - Qt API
         return QSize(320, 52)
 

@@ -26,7 +26,7 @@ from retropal import __version__
 from retropal.core.dither import iter_dithers
 from retropal.gui.batch_dialog import BatchConvertDialog
 from retropal.gui.compare_dialog import CompareDitheringDialog
-from retropal.gui.controller import ConverterController
+from retropal.gui.controller import ConverterController, palette_display_metadata
 from retropal.gui.image_view import ImageView
 from retropal.gui.palette_view import PaletteView
 from retropal.palettes import PALETTE_IDS
@@ -210,17 +210,16 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Conversion failed", str(exc))
             return
         self._converted_view.set_image(self._pil_to_pixmap(converted))
-        self._palette_view.set_colors(self._controller.result_palette)
-        count = len(self._controller.result_palette)
-        metadata = f"Used colors: {count}"
-        if self._palette_combo.currentText().startswith("amiga-ocs-"):
-            from retropal.core.palette_export import amiga_ocs_word
-
-            words = " ".join(amiga_ocs_word(color) for color in self._controller.result_palette)
-            metadata += f" · OCS 12-bit RGB\n{words}"
-        self._palette_metadata.setText(metadata)
+        self._refresh_palette_panel()
         self.statusBar().showMessage(
             f"Ready · {self._palette_combo.currentText()} · {self._dither_combo.currentText()}"
+        )
+
+    def _refresh_palette_panel(self) -> None:
+        colors = self._controller.display_palette
+        self._palette_view.set_colors(colors)
+        self._palette_metadata.setText(
+            palette_display_metadata(self._controller.palette_id, colors)
         )
 
     def export_image(self) -> None:

@@ -66,8 +66,41 @@ uv run python -m compileall -q src
 
 - v0.1: desktop converter and CLI
 - v0.2: batch conversion
-- v0.3: custom palette import and editing
+- v0.3: custom palettes, palette interchange, import, and editing
 - v0.4: sprite-sheet workflows
+
+### M2.4 — Custom Palettes and Palette Interchange
+
+M2.4 will establish a common palette model and interchange workflow for moving
+palettes between Retro Palette Converter, Deluxe Paint, Personal Paint,
+Brilliance, GrafX2, Godot2Amiga, and OpenVN. Import, export, conversion, and
+validation will share the same palette data rather than relying on
+application-specific GUI paths.
+
+- **M2.4a Custom Palette Core** — create, edit, name, reorder, save, and load
+  user-defined palettes through a shared core API suitable for both the GUI and
+  CLI.
+- **M2.4b Standard Palette Formats** — import and export GIMP Palette (GPL),
+  JASC-PAL, RIFF PAL, Adobe Color Table (ACT), JSON, and CSV palettes while
+  preserving colour order and available metadata.
+- **M2.4c Indexed Image Palette Import** — extract embedded palettes from
+  indexed PNG, GIF, and BMP images, including transparency information where
+  the source format provides it.
+- **M2.4d Amiga Palette Interchange** — read and write IFF/ILBM `CMAP` colour
+  maps and `CRNG` colour-range metadata for interoperability with classic Amiga
+  paint and animation workflows.
+- **M2.4e Brilliance PLT Compatibility** — import and export Brilliance PLT
+  palettes with documented compatibility behavior and round-trip tests.
+- **M2.4f Palette Conversion and Validation** — convert between supported
+  formats; validate colour counts, channel precision, duplicate colours,
+  metadata, and target-format constraints; and report any lossy conversion
+  before export.
+
+### M2.5 — Amiga Colour Cycling
+
+- Preview Amiga colour cycling in the palette panel and converted image.
+- Create and edit cycling ranges, direction, rate, and active state.
+- Preserve compatible cycling metadata during IFF/ILBM `CRNG` interchange.
 
 Licensed under the MIT License.
 
