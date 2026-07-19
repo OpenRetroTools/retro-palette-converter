@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import os
 from pathlib import Path
 
 from PIL import Image
@@ -29,7 +31,8 @@ from retropal.gui.compare_dialog import CompareDitheringDialog
 from retropal.gui.controller import ConverterController, palette_display_metadata
 from retropal.gui.image_view import ImageView
 from retropal.gui.palette_view import PaletteView
-from retropal.palettes import PALETTE_IDS
+from retropal.palettes import get_palette_info, iter_palette_info
+from retropal.palettes.fixed import load_fixed_palette
 
 IMAGE_FILTER = "Images (*.png *.jpg *.jpeg *.bmp)"
 
@@ -121,9 +124,26 @@ class MainWindow(QMainWindow):
         controls = QHBoxLayout()
         form = QFormLayout()
         self._palette_combo = QComboBox()
-        self._palette_combo.addItems(PALETTE_IDS)
-        self._palette_combo.setCurrentText("amiga-ocs-32")
-        self._palette_combo.currentTextChanged.connect(self.refresh_conversion)
+        palette_names: set[str] = set()
+        palette_ids: set[str] = set()
+        for info in iter_palette_info():
+            if info.name in palette_names:
+                raise ValueError(f"Duplicate palette display name: {info.name}")
+            if info.id in palette_ids:
+                raise ValueError(f"Duplicate palette ID: {info.id}")
+            palette_names.add(info.name)
+            palette_ids.add(info.id)
+            self._palette_combo.addItem(info.name, info.id)
+        self._palette_combo.setCurrentIndex(self._palette_combo.findData("amiga-ocs-32"))
+        self._palette_combo.currentIndexChanged.connect(self.refresh_conversion)
+        if os.environ.get("RETROPAL_PALETTE_TRACE"):
+            self._palette_combo.currentIndexChanged.connect(
+                lambda: self._trace_palette("currentIndexChanged")
+            )
+            self._palette_combo.currentTextChanged.connect(
+                lambda: self._trace_palette("currentTextChanged")
+            )
+            self._palette_combo.activated.connect(lambda: self._trace_palette("activated"))
         form.addRow("Palette:", self._palette_combo)
 
         self._dither_combo = QComboBox()
@@ -174,7 +194,7 @@ class MainWindow(QMainWindow):
         current_dither = self._dither_combo.currentData()
         dialog = CompareDitheringDialog(
             self._controller.source_image,
-            self._palette_combo.currentText(),
+            self._palette_combo.currentData(),
             current_dither,
             self,
         )
@@ -202,7 +222,7 @@ class MainWindow(QMainWindow):
             return
         try:
             self._controller.set_options(
-                self._palette_combo.currentText(),
+                self._palette_combo.currentData(),
                 self._dither_combo.currentData(),
             )
             converted = self._controller.refresh()
@@ -211,6 +231,7 @@ class MainWindow(QMainWindow):
             return
         self._converted_view.set_image(self._pil_to_pixmap(converted))
         self._refresh_palette_panel()
+        self._trace_palette("rendered")
         self.statusBar().showMessage(
             f"Ready · {self._palette_combo.currentText()} · {self._dither_combo.currentText()}"
         )
@@ -220,6 +241,47 @@ class MainWindow(QMainWindow):
         self._palette_view.set_colors(colors)
         self._palette_metadata.setText(
             palette_display_metadata(self._controller.palette_id, colors)
+        )
+
+    def _trace_palette(self, signal: str) -> None:
+        if not os.environ.get("RETROPAL_PALETTE_TRACE"):
+            return
+        palette_id = self._palette_combo.currentData()
+        palette = (
+            get_palette_info(palette_id)
+            if get_palette_info(palette_id).adaptive
+            else load_fixed_palette(palette_id)
+        )
+        converted = self._controller.converted_image
+        pixmap = self._converted_view.pixmap()
+        qimage = pixmap.toImage()
+        visible_checksum = hashlib.sha256(
+            bytes(qimage.constBits()) if not qimage.isNull() else b""
+        ).hexdigest()
+        pil_checksum = (
+            hashlib.sha256(converted.tobytes()).hexdigest() if converted is not None else ""
+        )
+        print(
+            "PALETTE_TRACE",
+            f"signal={signal}",
+            f"combo_index={self._palette_combo.currentIndex()}",
+            f"combo_text={self._palette_combo.currentText()!r}",
+            f"combo_data={palette_id!r}",
+            f"selected_id={self._controller.palette_id!r}",
+            f"window_id={id(self)}",
+            f"controller_id={id(self._controller)}",
+            f"preview_widget_id={id(self._converted_view)}",
+            f"palette_object_id={id(palette)}",
+            f"palette_object_type={type(palette).__name__}",
+            f"conversion_palette_id={self._controller.palette_id!r}",
+            f"pil_mode={converted.mode if converted is not None else None!r}",
+            f"pil_checksum={pil_checksum}",
+            f"qimage_checksum={visible_checksum}",
+            f"pixmap_cache_key={pixmap.cacheKey()}",
+            f"visible_preview_checksum={visible_checksum}",
+            f"swatch_rgb={self._palette_view.colors!r}",
+            f"swatch_count={self._palette_view.swatch_count}",
+            flush=True,
         )
 
     def export_image(self) -> None:

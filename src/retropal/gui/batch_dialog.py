@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (
 
 from retropal.core.batch import BatchResult, convert_batch, discover_images
 from retropal.core.dither import iter_dithers
-from retropal.palettes import PALETTE_IDS
+from retropal.palettes import iter_palette_info
 
 
 class BatchWorker(QObject):
@@ -138,8 +138,9 @@ class BatchConvertDialog(QDialog):
         form.addRow("Output directory:", self._output_picker)
 
         self._palette_combo = QComboBox(self)
-        self._palette_combo.addItems(PALETTE_IDS)
-        self._palette_combo.setCurrentText("amiga-ocs-32")
+        for info in iter_palette_info():
+            self._palette_combo.addItem(info.name, info.id)
+        self._palette_combo.setCurrentIndex(self._palette_combo.findData("amiga-ocs-32"))
         form.addRow("Palette:", self._palette_combo)
 
         self._dither_combo = QComboBox(self)
@@ -207,7 +208,7 @@ class BatchConvertDialog(QDialog):
         self._worker = BatchWorker(
             input_dir,
             output_dir,
-            self._palette_combo.currentText(),
+            self._palette_combo.currentData(),
             self._dither_combo.currentData(),
             recursive=self._recursive.isChecked(),
             overwrite=self._overwrite.isChecked(),

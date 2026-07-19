@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from PySide6.QtCore import QSize
-from PySide6.QtGui import QColor, QPainter
-from PySide6.QtWidgets import QWidget
+from PySide6.QtGui import QColor, QPalette
+from PySide6.QtWidgets import QGridLayout, QWidget
 
 from retropal.palettes.base import RGBColor
 
@@ -15,37 +15,40 @@ class PaletteView(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self._colors: tuple[RGBColor, ...] = ()
+        self._layout = QGridLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setHorizontalSpacing(0)
+        self._layout.setVerticalSpacing(0)
         self.setMinimumHeight(52)
 
     def set_colors(self, colors: tuple[RGBColor, ...]) -> None:
+        while (item := self._layout.takeAt(0)) is not None:
+            if widget := item.widget():
+                widget.hide()
+                widget.setParent(None)
+                widget.deleteLater()
         self._colors = colors
-        self.update()
+        for index, color in enumerate(colors):
+            swatch = QWidget(self)
+            swatch.setObjectName(f"palette-swatch-{index}")
+            swatch.setProperty("rgb", color)
+            swatch.setAutoFillBackground(True)
+            palette = swatch.palette()
+            palette.setColor(QPalette.ColorRole.Window, QColor(*color))
+            swatch.setPalette(palette)
+            swatch.setMinimumSize(1, 1)
+            self._layout.addWidget(swatch, index // 16, index % 16)
+        self.repaint()
 
     @property
     def colors(self) -> tuple[RGBColor, ...]:
         """Return the colors currently displayed by the widget."""
         return self._colors
 
+    @property
+    def swatch_count(self) -> int:
+        """Return the number of swatch widgets currently installed."""
+        return self._layout.count()
+
     def sizeHint(self) -> QSize:  # noqa: N802 - Qt API
         return QSize(320, 52)
-
-    def paintEvent(self, event: object) -> None:  # noqa: N802 - Qt API
-        del event
-        painter = QPainter(self)
-        painter.fillRect(self.rect(), self.palette().base())
-        if not self._colors:
-            return
-        columns = min(16, max(1, len(self._colors)))
-        rows = (len(self._colors) + columns - 1) // columns
-        cell_width = max(1, self.width() // columns)
-        cell_height = max(1, self.height() // rows)
-        for index, color in enumerate(self._colors):
-            column = index % columns
-            row = index // columns
-            painter.fillRect(
-                column * cell_width,
-                row * cell_height,
-                cell_width,
-                cell_height,
-                QColor(*color),
-            )

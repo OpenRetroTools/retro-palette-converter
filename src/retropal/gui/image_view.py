@@ -33,10 +33,16 @@ class ImageView(QGraphicsView):
         self.setBackgroundBrush(QColor(72, 72, 72))
 
     def set_image(self, pixmap: QPixmap | None) -> None:
+        self._item.setPixmap(QPixmap())
         self._item.setPixmap(pixmap or QPixmap())
         self._has_image = pixmap is not None and not pixmap.isNull()
         self._scene.setSceneRect(self._item.boundingRect())
         self.fit_image()
+        self.viewport().repaint()
+
+    def pixmap(self) -> QPixmap:
+        """Return the pixmap currently installed in the visible scene item."""
+        return self._item.pixmap()
 
     def fit_image(self) -> None:
         if self._has_image:
