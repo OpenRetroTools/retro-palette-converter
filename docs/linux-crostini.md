@@ -25,6 +25,13 @@ chmod +x RetroPaletteConverter.sh
 ./RetroPaletteConverter.sh
 ```
 
+If automatic detection is unavailable, invoke the packaged executable with
+the XCB backend explicitly:
+
+```bash
+QT_QPA_PLATFORM=xcb ./RetroPaletteConverter
+```
+
 Install the XCB runtime libraries if necessary:
 
 ```bash

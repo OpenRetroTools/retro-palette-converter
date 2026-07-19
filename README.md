@@ -41,6 +41,12 @@ The packaged Linux release includes `RetroPaletteConverter.sh`. It detects
 ChromeOS/Crostini and selects XCB only when required; ordinary Linux systems
 continue to use Qt's default display backend.
 
+If Crostini cannot be detected automatically, use the direct fallback:
+
+```bash
+QT_QPA_PLATFORM=xcb ./RetroPaletteConverter
+```
+
 ## CLI
 
 ```bash
@@ -67,40 +73,98 @@ uv run python -m compileall -q src
 - v0.1: desktop converter and CLI
 - v0.2: batch conversion
 - v0.3: custom palettes, palette interchange, import, and editing
-- v0.4: sprite-sheet workflows
+- v0.4: sprite-sheet workflows (original roadmap entry; scope deferred to 3.x)
+
+Roadmap entries below describe plans, not claims of implemented or tested
+compatibility.
+
+### Completed 2.x milestones
+
+- [x] **M2.1 Batch Conversion** — GUI and core batch conversion.
+- [x] **M2.2 Dithering** — shared dithering registry, additional algorithms,
+  and comparison previews; M2.2a established the extensible registry with
+  `none` and `floyd-steinberg`.
+- [x] **M2.3a Palette Metadata and Platform Profiles** — palette metadata plus
+  Commodore and expanded Amiga profiles.
+- [x] **M2.3b Atari Platform Pack** — Atari 2600, Atari 8-bit, ST, STE, and
+  Falcon030 profiles.
+
+### Next platform pack
+
+- **M2.3c Sinclair Platform Pack** — ZX Spectrum, ZX Spectrum Next,
+  Timex/Sinclair, and SAM Coupé. Model fixed palettes, selectable hardware
+  colour spaces, and display-mode constraints as appropriate rather than
+  storing every possible hardware-generated combination.
+
+### Planned platform packs
+
+- **M2.3d Nintendo Platform Pack** — Game Boy, Game Boy Color, NES/Famicom,
+  SNES/Super Famicom, and Virtual Boy, represented as fixed palettes,
+  selectable hardware colour spaces, generated palettes, or mode-specific
+  constraints according to each system.
+- **M2.3e Sega Platform Pack** — Master System, Game Gear, Mega Drive/Genesis,
+  Sega CD where palette behaviour differs, and 32X, including relevant
+  display-mode and simultaneous-colour limits.
+- **M2.3f Classic Computers and Display Standards Pack** — IBM PC CGA, EGA,
+  VGA/MCGA, Hercules, Apple II, Apple IIGS, classic Macintosh monochrome,
+  Macintosh II colour, MSX, MSX2, Sharp X68000, and Acorn Archimedes. Separate
+  fixed defaults from selectable colour spaces, generated/adaptive palettes,
+  and display-mode-specific constraints.
 
 ### M2.4 — Custom Palettes and Palette Interchange
 
-M2.4 will establish a common palette model and interchange workflow for moving
-palettes between Retro Palette Converter, Deluxe Paint, Personal Paint,
-Brilliance, GrafX2, Godot2Amiga, and OpenVN. Import, export, conversion, and
-validation will share the same palette data rather than relying on
-application-specific GUI paths.
+Interchange work targets tested workflows with Deluxe Paint, Personal Paint,
+Brilliance, GrafX2, Godot2Amiga, and OpenVN without claiming compatibility
+before formats and round trips have been validated.
 
 - **M2.4a Custom Palette Core** — create, edit, name, reorder, save, and load
-  user-defined palettes through a shared core API suitable for both the GUI and
-  CLI.
-- **M2.4b Standard Palette Formats** — import and export GIMP Palette (GPL),
-  JASC-PAL, RIFF PAL, Adobe Color Table (ACT), JSON, and CSV palettes while
-  preserving colour order and available metadata.
-- **M2.4c Indexed Image Palette Import** — extract embedded palettes from
-  indexed PNG, GIF, and BMP images, including transparency information where
-  the source format provides it.
-- **M2.4d Amiga Palette Interchange** — read and write IFF/ILBM `CMAP` colour
-  maps and `CRNG` colour-range metadata for interoperability with classic Amiga
-  paint and animation workflows.
-- **M2.4e Brilliance PLT Compatibility** — import and export Brilliance PLT
-  palettes with documented compatibility behavior and round-trip tests.
-- **M2.4f Palette Conversion and Validation** — convert between supported
-  formats; validate colour counts, channel precision, duplicate colours,
-  metadata, and target-format constraints; and report any lossy conversion
-  before export.
+  user palettes through shared GUI and CLI services.
+- **M2.4b Standard Palette Formats** — import and export GIMP GPL, JASC-PAL,
+  RIFF PAL, Adobe ACT, JSON, and CSV while preserving colour order and supported
+  metadata.
+- **M2.4c Indexed Image Palette Import** — extract palettes and available
+  transparency metadata from indexed PNG, GIF, and BMP images.
+- **M2.4d Amiga Palette Interchange** — import and export IFF/ILBM `CMAP` and
+  Amiga `CRNG` metadata.
+- **M2.4e Brilliance PLT Compatibility** — add Brilliance PLT import and export
+  after the format and round-trip behaviour have been validated.
+- **M2.4f Palette Conversion and Validation** — convert supported formats;
+  validate colour counts, channel precision, duplicates, metadata, and target
+  platform limits; and report lossy conversions.
 
 ### M2.5 — Amiga Colour Cycling
 
-- Preview Amiga colour cycling in the palette panel and converted image.
-- Create and edit cycling ranges, direction, rate, and active state.
-- Preserve compatible cycling metadata during IFF/ILBM `CRNG` interchange.
+- Read `CRNG` ranges; preview and edit range, direction, and speed; provide an
+  animated preview; import and export cycle metadata; and preserve unrelated
+  IFF chunks where practical.
+
+### M2.6 — Palette Analysis
+
+- Compare two palettes using exact and near-duplicate detection, shared and
+  unique colours, RGB distance, luminance, and palette statistics.
+- Add perceptual distance such as Delta E only with a documented colour-space
+  and conversion method; raw RGB distance is not perceptual accuracy.
+- Suggest palette reductions and merges, and validate platform limits.
+
+### M2.7 — Palette Gallery and Library UX
+
+- Add search; platform, family, and colour-count filters; tags; favourites;
+  recently used palettes; grid/swatch previews; built-in versus user palette
+  distinction; and source and licence metadata.
+
+### M2.8 — Batch Processing and Automation
+
+- Expand existing multi-file batch conversion with recursive folders,
+  output-directory handling, filename templates, overwrite policy, CLI automation,
+  machine-readable reports, conversion statistics, failure summaries, and
+  deterministic non-interactive operation for CI and asset pipelines.
+
+### Roadmap boundary
+
+The 2.x phase focuses on palettes, palette interoperability, analysis,
+browsing, and palette-based batch conversion. Sprite sheets, tile sets, fonts,
+planar/bitplane asset export, and broader retro graphics tooling belong to a
+later 3.x phase.
 
 Licensed under the MIT License.
 
