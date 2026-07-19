@@ -37,6 +37,31 @@ jobs:
       - name: Install Python
         run: uv python install 3.12
 
+      # See ci.yml for the full explanation: PySide6's Qt6Gui/Qt6Widgets
+      # shared libraries need libEGL/libGL and libxcb/libxkbcommon, which
+      # ubuntu-latest doesn't install by default. Needed here for both the
+      # Test step (pytest imports GUI modules) and the PyInstaller build
+      # step (which also imports PySide6 to bundle it).
+      - name: Install Qt runtime libraries (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libegl1 \
+            libgl1 \
+            libxkbcommon0 \
+            libxkbcommon-x11-0 \
+            libdbus-1-3 \
+            libxcb-cursor0 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-shape0 \
+            libxcb-xinerama0 \
+            libxcb-xkb1
+
       - name: Install project dependencies
         run: uv sync --python 3.12 --extra dev --extra gui
 
