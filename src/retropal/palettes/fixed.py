@@ -32,6 +32,8 @@ def load_fixed_palette(palette_id: str) -> FixedPalette:
         color_count=len(colors),
         description=payload["description"],
         tags=tuple(payload.get("tags", ())),
+        platform=payload.get("platform"),
+        notes=payload.get("notes", ""),
     )
     return FixedPalette(id=info.id, name=info.name, colors=colors, info=info)
 
@@ -50,4 +52,10 @@ def fixed_palette_ids() -> tuple[str, ...]:
         "atari-st",
         "atari-ste",
         "atari-falcon030",
+        "zx-spectrum-48k-normal",
+        "zx-spectrum-48k-bright",
+        "zx-spectrum-48k-auto",
+        "zx-spectrum-128k-normal",
+        "zx-spectrum-128k-bright",
+        "zx-spectrum-128k-auto",
     )

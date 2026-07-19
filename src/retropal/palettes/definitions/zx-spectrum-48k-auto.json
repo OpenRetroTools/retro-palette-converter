@@ -1,0 +1,12 @@
+{
+  "id": "zx-spectrum-48k-auto",
+  "name": "ZX Spectrum 48K — Automatic Bright",
+  "family": "Sinclair",
+  "manufacturer": "Sinclair Research",
+  "year": 1982,
+  "platform": "Sinclair ZX Spectrum 48K",
+  "notes": "Nearest-colour conversion chooses from both intensities; 8×8 attribute cells are not enforced.",
+  "description": "The combined 15 unique normal and BRIGHT colours of the ZX Spectrum 48K, allowing conversion to choose brightness automatically. Attribute-cell restrictions are not applied.",
+  "tags": ["sinclair", "zx-spectrum", "48k", "bright", "automatic"],
+  "colors": [[0, 0, 0], [0, 0, 205], [205, 0, 0], [205, 0, 205], [0, 205, 0], [0, 205, 205], [205, 205, 0], [205, 205, 205], [0, 0, 255], [255, 0, 0], [255, 0, 255], [0, 255, 0], [0, 255, 255], [255, 255, 0], [255, 255, 255]]
+}

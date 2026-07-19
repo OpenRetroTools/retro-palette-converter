@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 
 from PIL import Image
-from PySide6.QtCore import QSettings, Qt
+from PySide6.QtCore import QSettings, QSignalBlocker, Qt
 from PySide6.QtGui import QAction, QImage, QKeySequence, QPixmap
 from PySide6.QtWidgets import (
     QComboBox,
@@ -33,6 +33,7 @@ from retropal.gui.image_view import ImageView
 from retropal.gui.palette_view import PaletteView
 from retropal.palettes import get_palette_info, iter_palette_info
 from retropal.palettes.fixed import load_fixed_palette
+from retropal.palettes.profiles import get_platform_profile, iter_platform_profiles
 
 IMAGE_FILTER = "Images (*.png *.jpg *.jpeg *.bmp)"
 
@@ -123,20 +124,21 @@ class MainWindow(QMainWindow):
 
         controls = QHBoxLayout()
         form = QFormLayout()
+        self._profile_combo = QComboBox()
+        self._profile_combo.addItem("All platforms", None)
+        for profile in iter_platform_profiles():
+            self._profile_combo.addItem(profile.name, profile.id)
+        form.addRow("Profile:", self._profile_combo)
+
         self._palette_combo = QComboBox()
-        palette_names: set[str] = set()
-        palette_ids: set[str] = set()
-        for info in iter_palette_info():
-            if info.name in palette_names:
-                raise ValueError(f"Duplicate palette display name: {info.name}")
-            if info.id in palette_ids:
-                raise ValueError(f"Duplicate palette ID: {info.id}")
-            palette_names.add(info.name)
-            palette_ids.add(info.id)
-            self._palette_combo.addItem(info.name, info.id)
+        self._populate_palette_combo()
         self._palette_combo.setCurrentIndex(self._palette_combo.findData("amiga-ocs-32"))
+        self._profile_combo.currentIndexChanged.connect(self._apply_platform_profile)
         self._palette_combo.currentIndexChanged.connect(self.refresh_conversion)
         if os.environ.get("RETROPAL_PALETTE_TRACE"):
+            self._profile_combo.currentIndexChanged.connect(
+                lambda: self._trace_palette("profileCurrentIndexChanged")
+            )
             self._palette_combo.currentIndexChanged.connect(
                 lambda: self._trace_palette("currentIndexChanged")
             )
@@ -169,6 +171,36 @@ class MainWindow(QMainWindow):
         palette_row.addWidget(self._palette_metadata)
         root.addLayout(palette_row)
         self.setCentralWidget(central)
+
+    def _populate_palette_combo(self, palette_ids: tuple[str, ...] | None = None) -> None:
+        allowed = set(palette_ids) if palette_ids is not None else None
+        palette_names: set[str] = set()
+        added_palette_ids: set[str] = set()
+        for info in iter_palette_info():
+            if allowed is not None and info.id not in allowed:
+                continue
+            if info.name in palette_names:
+                raise ValueError(f"Duplicate palette display name: {info.name}")
+            if info.id in added_palette_ids:
+                raise ValueError(f"Duplicate palette ID: {info.id}")
+            palette_names.add(info.name)
+            added_palette_ids.add(info.id)
+            self._palette_combo.addItem(info.name, info.id)
+
+    def _apply_platform_profile(self) -> None:
+        profile_id = self._profile_combo.currentData()
+        with QSignalBlocker(self._palette_combo):
+            self._palette_combo.clear()
+            if profile_id is None:
+                self._populate_palette_combo()
+                palette_id = self._controller.palette_id
+            else:
+                profile = get_platform_profile(profile_id)
+                self._populate_palette_combo(profile.palette_ids)
+                palette_id = profile.default_palette_id
+            index = self._palette_combo.findData(palette_id)
+            self._palette_combo.setCurrentIndex(index if index >= 0 else 0)
+        self.refresh_conversion()
 
     @staticmethod
     def _preview_group(title: str, view: ImageView) -> QGroupBox:
@@ -348,6 +380,7 @@ class MainWindow(QMainWindow):
 
     def _set_conversion_enabled(self, enabled: bool) -> None:
         self._palette_combo.setEnabled(enabled)
+        self._profile_combo.setEnabled(enabled)
         self._dither_combo.setEnabled(enabled)
         self._export_button.setEnabled(enabled)
         self._export_action.setEnabled(enabled)

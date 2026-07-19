@@ -1,0 +1,12 @@
+{
+  "id": "zx-spectrum-48k-bright",
+  "name": "ZX Spectrum 48K — Bright",
+  "family": "Sinclair",
+  "manufacturer": "Sinclair Research",
+  "year": 1982,
+  "platform": "Sinclair ZX Spectrum 48K",
+  "notes": "BRIGHT intensity only; bright black duplicates normal black and attribute cells are not enforced.",
+  "description": "The eight ZX Spectrum 48K colours with BRIGHT enabled. Bright black is electrically identical to normal black. Attribute-cell restrictions are not applied.",
+  "tags": ["sinclair", "zx-spectrum", "48k", "bright"],
+  "colors": [[0, 0, 0], [0, 0, 255], [255, 0, 0], [255, 0, 255], [0, 255, 0], [0, 255, 255], [255, 255, 0], [255, 255, 255]]
+}

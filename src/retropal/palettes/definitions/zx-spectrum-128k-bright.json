@@ -1,0 +1,12 @@
+{
+  "id": "zx-spectrum-128k-bright",
+  "name": "ZX Spectrum 128K — Bright",
+  "family": "Sinclair",
+  "manufacturer": "Sinclair Research",
+  "year": 1985,
+  "platform": "Sinclair ZX Spectrum 128K",
+  "notes": "BRIGHT intensity only; bright black duplicates normal black and attribute cells are not enforced.",
+  "description": "The eight Spectrum-compatible colours of the ZX Spectrum 128K with BRIGHT enabled. Bright black duplicates normal black. Attribute-cell restrictions are not applied.",
+  "tags": ["sinclair", "zx-spectrum", "128k", "bright"],
+  "colors": [[0, 0, 0], [0, 0, 255], [255, 0, 0], [255, 0, 255], [0, 255, 0], [0, 255, 255], [255, 255, 0], [255, 255, 255]]
+}

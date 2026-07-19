@@ -88,13 +88,9 @@ compatibility.
   Commodore and expanded Amiga profiles.
 - [x] **M2.3b Atari Platform Pack** — Atari 2600, Atari 8-bit, ST, STE, and
   Falcon030 profiles.
-
-### Next platform pack
-
-- **M2.3c Sinclair Platform Pack** — ZX Spectrum, ZX Spectrum Next,
-  Timex/Sinclair, and SAM Coupé. Model fixed palettes, selectable hardware
-  colour spaces, and display-mode constraints as appropriate rather than
-  storing every possible hardware-generated combination.
+- [x] **M2.3c Sinclair Platform Pack** — ZX Spectrum 48K and 128K profiles with
+  normal, bright, and automatic-bright fixed palettes. Attribute-cell
+  restrictions remain planned for a later milestone.
 
 ### Planned platform packs
 
@@ -205,7 +201,13 @@ Available modes: none, Floyd–Steinberg, Atkinson, Bayer 2×2, Bayer 4×4, Baye
 
 ## Platform palettes
 
-The built-in collection includes Amiga OCS/ECS/AGA, Commodore 64, VIC-20, Commodore Plus/4, Game Boy, EGA, PICO-8, DawnBringer 16, and the Atari platform pack (2600/TIA, 8-bit ANTIC/GTIA, ST, STE, Falcon030). Use `retropal palettes --verbose` to inspect metadata, or `retropal palettes --family Atari` to list one platform family.
+The built-in collection includes Amiga OCS/ECS/AGA, Commodore 64, VIC-20,
+Commodore Plus/4, Game Boy, EGA, PICO-8, DawnBringer 16, the Atari platform
+pack (2600/TIA, 8-bit ANTIC/GTIA, ST, STE, Falcon030), and Sinclair ZX
+Spectrum 48K/128K profiles with normal, bright, and automatic-bright modes.
+See [supported platforms](docs/supported-platforms.md). Use
+`retropal palettes --verbose` to inspect metadata, or
+`retropal palettes --family Sinclair` to list the Sinclair palettes.
 
 ### Atari platform pack (M2.3b) — historical accuracy notes
 

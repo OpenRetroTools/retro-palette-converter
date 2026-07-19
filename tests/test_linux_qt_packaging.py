@@ -108,3 +108,6 @@ def test_packaged_fixed_palette_definitions_are_accepted(tmp_path: Path) -> None
         (definitions / f"{palette_id}.json").write_text("{}", encoding="utf-8")
 
     module.verify_bundle(bundle)
+
+    assert (definitions / "zx-spectrum-48k-auto.json").is_file()
+    assert (definitions / "zx-spectrum-128k-bright.json").is_file()

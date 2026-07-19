@@ -12,12 +12,13 @@ def _run_palette_trace_sequence(application: object, window: object, image_path:
     """Run the opt-in rendered-palette diagnostic inside the real application."""
     from PySide6.QtGui import QImage
 
-    sequence = (
-        "amiga-ocs-16",
-        "commodore-64",
-        "atari-st",
-        "amiga-ocs-16",
-        "commodore-64",
+    from retropal.palettes.profiles import iter_platform_profiles
+
+    sequence = tuple(
+        os.environ.get(
+            "RETROPAL_PALETTE_TRACE_SEQUENCE",
+            "amiga-ocs-16,commodore-64,atari-st,amiga-ocs-16,commodore-64",
+        ).split(",")
     )
     screenshot_dir = Path(
         os.environ.get("RETROPAL_PALETTE_SCREENSHOT_DIR", "palette-trace-screenshots")
@@ -28,6 +29,19 @@ def _run_palette_trace_sequence(application: object, window: object, image_path:
         window.load_path(image_path)
         application.processEvents()
         for step, palette_id in enumerate(sequence, start=1):
+            profile = next(
+                (
+                    profile
+                    for profile in iter_platform_profiles()
+                    if palette_id in profile.palette_ids
+                ),
+                None,
+            )
+            profile_index = window._profile_combo.findData(
+                profile.id if profile is not None else None
+            )
+            window._profile_combo.setCurrentIndex(profile_index)
+            application.processEvents()
             index = window._palette_combo.findData(palette_id)
             if index < 0:
                 raise RuntimeError(f"Palette is absent from combo box: {palette_id}")
@@ -54,10 +68,17 @@ def _run_palette_trace_sequence(application: object, window: object, image_path:
                 f"swatch_count={window._palette_view.swatch_count}",
                 flush=True,
             )
-        if checksums[1] == checksums[0] or checksums[2] == checksums[0]:
-            raise RuntimeError("Fixed-palette previews did not visibly differ from Amiga")
-        if checksums[3] != checksums[0] or checksums[4] != checksums[1]:
-            raise RuntimeError("Repeated palette selections were not deterministic")
+        if sequence == (
+            "amiga-ocs-16",
+            "commodore-64",
+            "atari-st",
+            "amiga-ocs-16",
+            "commodore-64",
+        ):
+            if checksums[1] == checksums[0] or checksums[2] == checksums[0]:
+                raise RuntimeError("Fixed-palette previews did not visibly differ from Amiga")
+            if checksums[3] != checksums[0] or checksums[4] != checksums[1]:
+                raise RuntimeError("Repeated palette selections were not deterministic")
     except Exception as exc:  # diagnostic boundary must return a failing status
         print(f"PACKAGED_PALETTE_TRACE error={exc}", flush=True)
         application.exit(1)

@@ -36,7 +36,7 @@ def window(qt_app: QApplication, tmp_path: Path) -> MainWindow:
         (40, 96, 208),
         (240, 32, 160),
         (32, 224, 224),
-        (248, 128, 16),
+        (0, 0, 250),
     )
     image = Image.new("RGB", (64, 64))
     image.putdata(
@@ -232,3 +232,23 @@ def test_visible_palette_sequence_updates_pixmap_and_swatch_widgets(
     assert atari[0] != amiga_first[0]
     assert amiga_second == amiga_first
     assert commodore_second == commodore_first
+
+
+def test_sinclair_profile_selection_updates_visible_palette(
+    window: MainWindow,
+    qt_app: QApplication,
+) -> None:
+    profile_index = window._profile_combo.findData("sinclair-zx-spectrum-48k")
+    assert profile_index >= 0
+    window._profile_combo.setCurrentIndex(profile_index)
+    qt_app.processEvents()
+
+    assert window._profile_combo.currentText() == "Sinclair ZX Spectrum 48K"
+    assert window._palette_combo.currentData() == "zx-spectrum-48k-auto"
+    assert window._palette_combo.count() == 3
+    assert visible_swatch_colors(window) == load_fixed_palette("zx-spectrum-48k-auto").colors
+
+    auto_checksum = qimage_checksum(window)
+    choose_palette_like_user(window, qt_app, "zx-spectrum-48k-normal")
+    assert visible_swatch_colors(window) == load_fixed_palette("zx-spectrum-48k-normal").colors
+    assert qimage_checksum(window) != auto_checksum

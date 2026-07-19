@@ -19,6 +19,8 @@ class PaletteInfo:
     description: str
     tags: tuple[str, ...] = ()
     adaptive: bool = False
+    platform: str | None = None
+    notes: str = ""
 
 
 class Palette(Protocol):
