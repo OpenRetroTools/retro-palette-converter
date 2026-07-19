@@ -9,69 +9,10 @@ import stat
 import zipfile
 from pathlib import Path, PurePosixPath
 
+ROOT = Path(__file__).resolve().parents[1]
+LINUX_PACKAGING = ROOT / "packaging" / "linux"
 LAUNCHER_NAME = "RetroPaletteConverter.sh"
 EXECUTABLE_NAMES = {"RetroPaletteConverter", "retropal", LAUNCHER_NAME}
-
-LAUNCHER = r"""#!/usr/bin/env bash
-set -euo pipefail
-
-APP_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-
-is_crostini() {
-    [[ -n "${CROS_USER_ID_HASH:-}" ]] && return 0
-    [[ -e /dev/.cros_milestone ]] && return 0
-    [[ -e /mnt/chromeos ]] && return 0
-
-    grep -Eqi \
-        'chromeos|cros|termina' \
-        /proc/version /etc/os-release 2>/dev/null
-}
-
-# Respect an explicit user selection.
-if [[ -z "${QT_QPA_PLATFORM:-}" ]] && is_crostini; then
-    export QT_QPA_PLATFORM=xcb
-fi
-
-exec "$APP_DIR/RetroPaletteConverter" "$@"
-"""
-
-NOTES = r"""Retro Palette Converter for Linux
-==========================================
-
-Normal Linux
-------------
-
-You can start the native binary directly:
-
-    ./RetroPaletteConverter
-
-ChromeOS / Crostini
--------------------
-
-Use the included launcher:
-
-    ./RetroPaletteConverter.sh
-
-The launcher detects Crostini and selects Qt's XCB backend to avoid known
-Wayland connection failures. It does not force XCB on ordinary Linux systems.
-An explicitly configured QT_QPA_PLATFORM value is always respected.
-
-If the launcher is not executable after extraction:
-
-    chmod +x RetroPaletteConverter.sh
-
-Required Crostini packages when XCB libraries are missing:
-
-    sudo apt update
-    sudo apt install -y \
-      libxcb-cursor0 \
-      libxkbcommon-x11-0 \
-      libxcb-xinerama0 \
-      libxcb-icccm4 \
-      libxcb-image0 \
-      libxcb-keysyms1 \
-      libxcb-render-util0
-"""
 
 
 def update_zip(archive: Path) -> None:
@@ -110,8 +51,16 @@ def update_zip(archive: Path) -> None:
                         shutil.copyfileobj(source_file, output_file)
 
                 for name, data, mode in (
-                    (f"{prefix}{LAUNCHER_NAME}", LAUNCHER.encode(), 0o755),
-                    (f"{prefix}README-LINUX.txt", NOTES.encode(), 0o644),
+                    (
+                        f"{prefix}{LAUNCHER_NAME}",
+                        (LINUX_PACKAGING / LAUNCHER_NAME).read_bytes(),
+                        0o755,
+                    ),
+                    (
+                        f"{prefix}README-LINUX.txt",
+                        (LINUX_PACKAGING / "README-LINUX.txt").read_bytes(),
+                        0o644,
+                    ),
                 ):
                     info = zipfile.ZipInfo(name)
                     info.create_system = 3

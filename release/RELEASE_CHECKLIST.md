@@ -6,7 +6,7 @@
 - [ ] Run `uv run pytest`
 - [ ] Run `./scripts/verify-release.sh`
 - [ ] Build the Linux package with Python 3.12
-- [ ] Add the Crostini-aware launcher to the Linux ZIP
+- [ ] Build the Crostini-aware launcher into the Linux ZIP
 - [ ] Confirm `RetroPaletteConverter.sh` and `README-LINUX.txt` are present
 - [ ] Extract the Linux ZIP into a clean directory and start it on Crostini
 - [ ] Confirm the Windows, Linux, and macOS Apple Silicon workflows are green
