@@ -108,3 +108,29 @@ def test_palettes_verbose_command(capsys: pytest.CaptureFixture[str]) -> None:
     assert "commodore-64: Commodore 64 (VICE)" in output
     assert "amiga-aga-256: Amiga AGA 256" in output
     assert "Manufacturer: Commodore" in output
+
+
+def test_palettes_family_filter(capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["palettes", "--family", "Atari"]) == 0
+    output = capsys.readouterr().out.split()
+    assert set(output) == {
+        "atari-2600-tia",
+        "atari-8bit-antic-gtia",
+        "atari-st",
+        "atari-ste",
+        "atari-falcon030",
+    }
+
+
+def test_palettes_family_filter_is_case_insensitive(capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["palettes", "--family", "atari"]) == 0
+    output = capsys.readouterr().out
+    assert "atari-falcon030" in output
+
+
+def test_palettes_family_filter_verbose(capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["palettes", "--family", "Atari", "--verbose"]) == 0
+    output = capsys.readouterr().out
+    assert "atari-st: Atari ST" in output
+    assert "Family: Atari" in output
+    assert "commodore-64" not in output

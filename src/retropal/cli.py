@@ -12,7 +12,7 @@ from retropal.core.converter import convert_file
 from retropal.core.dither import DITHER_IDS
 from retropal.core.image_io import inspect_image
 from retropal.core.models import DitherMode
-from retropal.palettes import PALETTE_IDS, iter_palette_info
+from retropal.palettes import PALETTE_IDS, iter_palette_info, list_by_family
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -65,6 +65,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     palettes_parser = commands.add_parser("palettes", help="List available palettes.")
     palettes_parser.add_argument("--verbose", "-v", action="store_true")
+    palettes_parser.add_argument(
+        "--family",
+        help="Only show palettes belonging to the given family (case-insensitive).",
+    )
     commands.add_parser("gui", help="Start the desktop application.")
     inspect_parser = commands.add_parser("inspect", help="Inspect a PNG image.")
     inspect_parser.add_argument("input", type=Path)
@@ -82,10 +86,11 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         return run_gui()
     if args.command == "palettes":
+        infos = list_by_family(args.family) if args.family else iter_palette_info()
         if not args.verbose:
-            print("\n".join(PALETTE_IDS))
+            print("\n".join(info.id for info in infos))
             return 0
-        for info in iter_palette_info():
+        for info in infos:
             mode = "adaptive" if info.adaptive else "fixed"
             print(f"{info.id}: {info.name}")
             print(f"  Family: {info.family}")

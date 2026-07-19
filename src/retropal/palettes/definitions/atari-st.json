@@ -1,0 +1,95 @@
+{
+  "id": "atari-st",
+  "name": "Atari ST",
+  "family": "Atari",
+  "manufacturer": "Atari",
+  "year": 1985,
+  "description": "A deterministic representative 16-colour sample of the Atari ST's 3-bit-per-channel (8 levels x 8 levels x 8 levels = 512 total colours) hardware RGB DAC, covering greys plus primary, secondary, and mixed hues. The ST can display 16 of its 512 total colours simultaneously in low resolution (4 in medium, 2 in monochrome high resolution); this is a representative sample rather than a captured boot/desktop ROM palette, which varies by TOS version.",
+  "tags": [
+    "atari",
+    "st",
+    "gem"
+  ],
+  "colors": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      255,
+      255,
+      255
+    ],
+    [
+      146,
+      146,
+      146
+    ],
+    [
+      73,
+      73,
+      73
+    ],
+    [
+      255,
+      0,
+      0
+    ],
+    [
+      0,
+      255,
+      0
+    ],
+    [
+      0,
+      0,
+      255
+    ],
+    [
+      255,
+      255,
+      0
+    ],
+    [
+      255,
+      0,
+      255
+    ],
+    [
+      0,
+      255,
+      255
+    ],
+    [
+      255,
+      146,
+      0
+    ],
+    [
+      146,
+      0,
+      255
+    ],
+    [
+      0,
+      146,
+      255
+    ],
+    [
+      146,
+      255,
+      0
+    ],
+    [
+      255,
+      146,
+      146
+    ],
+    [
+      146,
+      146,
+      255
+    ]
+  ]
+}

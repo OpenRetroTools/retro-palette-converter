@@ -45,4 +45,9 @@ def fixed_palette_ids() -> tuple[str, ...]:
         "commodore-64",
         "vic-20",
         "commodore-plus4",
+        "atari-2600-tia",
+        "atari-8bit-antic-gtia",
+        "atari-st",
+        "atari-ste",
+        "atari-falcon030",
     )

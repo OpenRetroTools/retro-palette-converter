@@ -17,6 +17,19 @@
 
 ## Unreleased
 
+### M2.3b
+
+- Added the Atari platform palette pack: Atari 2600 (TIA, NTSC), Atari 8-bit
+  (ANTIC/GTIA), Atari ST, Atari STE, and Atari Falcon030.
+- Added `retropal palettes --family <name>` for filtering the palette list
+  and verbose output by family (case-insensitive).
+- Documented historical-accuracy caveats for each Atari palette (TV standard,
+  chip revision, and DAC precision variance) and distinguished total hardware
+  colour space from the representative conversion palette in metadata and
+  README where the two differ (e.g. Atari ST 512 total / 16 shown, Atari
+  Falcon030 262,144 total / 256 indexed).
+- Updated the development version shown by CLI and Help → About to 0.2.0.dev2.
+
 ### M2.3a
 
 - Added palette metadata and metadata queries.
