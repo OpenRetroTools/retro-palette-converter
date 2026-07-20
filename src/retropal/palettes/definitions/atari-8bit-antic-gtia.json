@@ -1,10 +1,16 @@
 {
   "id": "atari-8bit-antic-gtia",
-  "name": "Atari 8-bit (ANTIC/GTIA)",
-  "family": "Atari",
+  "display_name": "Atari 8-bit (ANTIC/GTIA)",
   "manufacturer": "Atari",
+  "platform": "Atari 8-bit (ANTIC/GTIA)",
+  "family": "Atari",
   "year": 1979,
+  "colour_count": 256,
+  "bit_depth": "8-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
   "description": "A deterministic representative 256-colour palette (16 hues x 16 luminances) for the GTIA video chip used in the Atari 400/800/XL/XE family, generated from a documented YUV colour-wheel decode rather than captured from any single emulator or real unit. No single canonical GTIA RGB table exists: real output depends on the NTSC/PAL/SECAM video standard (SECAM units expose only 8 luminances, i.e. 128 usable combinations), the analog encoder revision, and the attached display.",
+  "notes": "A deterministic representative 256-colour palette (16 hues x 16 luminances) for the GTIA video chip used in the Atari 400/800/XL/XE family, generated from a documented YUV colour-wheel decode rather than captured from any single emulator or real unit. No single canonical GTIA RGB table exists: real output depends on the NTSC/PAL/SECAM video standard (SECAM units expose only 8 luminances, i.e. 128 usable combinations), the analog encoder revision, and the attached display.",
   "tags": [
     "atari",
     "8-bit",

@@ -1,10 +1,16 @@
 {
   "id": "vic-20",
-  "name": "Commodore VIC-20",
-  "family": "Commodore",
+  "display_name": "Commodore VIC-20",
   "manufacturer": "Commodore",
+  "platform": "Commodore VIC-20",
+  "family": "Commodore",
   "year": 1980,
+  "colour_count": 16,
+  "bit_depth": "4-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
   "description": "A representative RGB rendering of the VIC chip 16-colour palette.",
+  "notes": "A representative RGB rendering of the VIC chip 16-colour palette.",
   "tags": [
     "commodore",
     "vic-20"

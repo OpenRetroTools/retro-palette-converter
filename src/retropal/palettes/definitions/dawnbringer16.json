@@ -1,6 +1,19 @@
 {
   "id": "dawnbringer16",
-  "name": "DawnBringer 16",
+  "display_name": "DawnBringer 16",
+  "manufacturer": "DawnBringer",
+  "platform": "DawnBringer 16",
+  "family": "Pixel art",
+  "year": 2011,
+  "colour_count": 16,
+  "bit_depth": "4-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
+  "description": "A compact general-purpose 16-colour pixel-art palette.",
+  "notes": "A compact general-purpose 16-colour pixel-art palette.",
+  "tags": [
+    "pixel-art"
+  ],
   "colors": [
     [
       20,
@@ -82,12 +95,5 @@
       238,
       214
     ]
-  ],
-  "family": "Pixel art",
-  "manufacturer": "DawnBringer",
-  "year": 2011,
-  "description": "A compact general-purpose 16-colour pixel-art palette.",
-  "tags": [
-    "pixel-art"
   ]
 }

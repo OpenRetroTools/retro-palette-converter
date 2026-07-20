@@ -1,0 +1,40 @@
+{
+  "id": "game-gear-default",
+  "display_name": "Sega Game Gear — 12-bit RGB",
+  "manufacturer": "Sega",
+  "platform": "Sega Game Gear",
+  "family": "Sega",
+  "year": 1990,
+  "colour_count": 4096,
+  "bit_depth": "12-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
+  "description": "The complete deterministic 4,096-colour Game Gear 12-bit RGB display colour space.",
+  "notes": "Representative conversion palette only; CRAM, palette slots, and LCD characteristics are not emulated.",
+  "tags": [
+    "sega",
+    "game-gear",
+    "handheld",
+    "12-bit"
+  ],
+  "platform_family": "Sega handheld",
+  "generation": "fourth generation handheld",
+  "rgb_levels": [
+    0,
+    17,
+    34,
+    51,
+    68,
+    85,
+    102,
+    119,
+    136,
+    153,
+    170,
+    187,
+    204,
+    221,
+    238,
+    255
+  ]
+}

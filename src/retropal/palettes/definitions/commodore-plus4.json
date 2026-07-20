@@ -1,10 +1,16 @@
 {
   "id": "commodore-plus4",
-  "name": "Commodore Plus/4 (TED)",
-  "family": "Commodore",
+  "display_name": "Commodore Plus/4 (TED)",
   "manufacturer": "Commodore",
+  "platform": "Commodore Plus/4 (TED)",
+  "family": "Commodore",
   "year": 1984,
+  "colour_count": 121,
+  "bit_depth": "7-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
   "description": "A representative 121-colour RGB approximation of the TED hue and luminance colour space.",
+  "notes": "A representative 121-colour RGB approximation of the TED hue and luminance colour space.",
   "tags": [
     "commodore",
     "plus4",

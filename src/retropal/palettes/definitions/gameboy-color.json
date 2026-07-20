@@ -1,0 +1,186 @@
+{
+  "id": "gameboy-color",
+  "display_name": "Game Boy Color — Representative Gamut",
+  "manufacturer": "Nintendo",
+  "platform": "Nintendo Game Boy Color",
+  "family": "Nintendo",
+  "year": 1998,
+  "colour_count": 32,
+  "bit_depth": "5-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
+  "description": "A deterministic 32-colour sample of the Game Boy Color's programmable 15-bit RGB display colour space.",
+  "notes": "The hardware colour space contains 32,768 colours. Palette banks, tile restrictions, and LCD response are not emulated.",
+  "tags": [
+    "nintendo",
+    "game-boy-color",
+    "gbc",
+    "handheld",
+    "15-bit",
+    "representative"
+  ],
+  "platform_family": "Game Boy",
+  "generation": "fifth generation handheld",
+  "colors": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      255
+    ],
+    [
+      0,
+      85,
+      0
+    ],
+    [
+      0,
+      85,
+      255
+    ],
+    [
+      0,
+      170,
+      0
+    ],
+    [
+      0,
+      170,
+      255
+    ],
+    [
+      0,
+      255,
+      0
+    ],
+    [
+      0,
+      255,
+      255
+    ],
+    [
+      85,
+      0,
+      0
+    ],
+    [
+      85,
+      0,
+      255
+    ],
+    [
+      85,
+      85,
+      0
+    ],
+    [
+      85,
+      85,
+      255
+    ],
+    [
+      85,
+      170,
+      0
+    ],
+    [
+      85,
+      170,
+      255
+    ],
+    [
+      85,
+      255,
+      0
+    ],
+    [
+      85,
+      255,
+      255
+    ],
+    [
+      170,
+      0,
+      0
+    ],
+    [
+      170,
+      0,
+      255
+    ],
+    [
+      170,
+      85,
+      0
+    ],
+    [
+      170,
+      85,
+      255
+    ],
+    [
+      170,
+      170,
+      0
+    ],
+    [
+      170,
+      170,
+      255
+    ],
+    [
+      170,
+      255,
+      0
+    ],
+    [
+      170,
+      255,
+      255
+    ],
+    [
+      255,
+      0,
+      0
+    ],
+    [
+      255,
+      0,
+      255
+    ],
+    [
+      255,
+      85,
+      0
+    ],
+    [
+      255,
+      85,
+      255
+    ],
+    [
+      255,
+      170,
+      0
+    ],
+    [
+      255,
+      170,
+      255
+    ],
+    [
+      255,
+      255,
+      0
+    ],
+    [
+      255,
+      255,
+      255
+    ]
+  ]
+}

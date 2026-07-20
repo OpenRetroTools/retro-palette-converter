@@ -1,12 +1,62 @@
 {
   "id": "zx-spectrum-128k-normal",
-  "name": "ZX Spectrum 128K — Normal",
-  "family": "Sinclair",
+  "display_name": "ZX Spectrum 128K — Normal",
   "manufacturer": "Sinclair Research",
-  "year": 1985,
   "platform": "Sinclair ZX Spectrum 128K",
-  "notes": "Normal intensity only; 8×8 attribute-cell restrictions are deferred to a future milestone.",
+  "family": "Sinclair",
+  "year": 1985,
+  "colour_count": 8,
+  "bit_depth": "3-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
   "description": "The eight Spectrum-compatible colours of the ZX Spectrum 128K with BRIGHT disabled. Attribute-cell restrictions are not applied.",
-  "tags": ["sinclair", "zx-spectrum", "128k", "normal"],
-  "colors": [[0, 0, 0], [0, 0, 205], [205, 0, 0], [205, 0, 205], [0, 205, 0], [0, 205, 205], [205, 205, 0], [205, 205, 205]]
+  "notes": "Normal intensity only; 8×8 attribute-cell restrictions are deferred to a future milestone.",
+  "tags": [
+    "sinclair",
+    "zx-spectrum",
+    "128k",
+    "normal"
+  ],
+  "colors": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      205
+    ],
+    [
+      205,
+      0,
+      0
+    ],
+    [
+      205,
+      0,
+      205
+    ],
+    [
+      0,
+      205,
+      0
+    ],
+    [
+      0,
+      205,
+      205
+    ],
+    [
+      205,
+      205,
+      0
+    ],
+    [
+      205,
+      205,
+      205
+    ]
+  ]
 }

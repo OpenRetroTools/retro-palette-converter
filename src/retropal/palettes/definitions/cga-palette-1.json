@@ -1,0 +1,45 @@
+{
+  "id": "cga-palette-1",
+  "display_name": "IBM CGA — Palette 1",
+  "manufacturer": "IBM",
+  "platform": "IBM Color Graphics Adapter",
+  "family": "Classic PC",
+  "year": 1981,
+  "colour_count": 4,
+  "bit_depth": "2-bit indexed / 4-bit RGBI",
+  "dac_size": null,
+  "palette_source": "IBM CGA RGBI palette 1",
+  "description": "Canonical high-intensity CGA palette 1 with a black background.",
+  "notes": "Composite artifact colours and monitor characteristics are not emulated.",
+  "tags": [
+    "ibm",
+    "pc",
+    "cga",
+    "rgbi",
+    "palette-1"
+  ],
+  "platform_family": "IBM PC graphics",
+  "generation": "first-generation IBM PC graphics",
+  "colors": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      85,
+      255,
+      255
+    ],
+    [
+      255,
+      85,
+      255
+    ],
+    [
+      255,
+      255,
+      255
+    ]
+  ]
+}

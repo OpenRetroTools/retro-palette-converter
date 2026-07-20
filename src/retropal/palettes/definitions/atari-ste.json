@@ -1,10 +1,16 @@
 {
   "id": "atari-ste",
-  "name": "Atari STE",
-  "family": "Atari",
+  "display_name": "Atari STE",
   "manufacturer": "Atari",
+  "platform": "Atari STE",
+  "family": "Atari",
   "year": 1989,
+  "colour_count": 16,
+  "bit_depth": "4-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
   "description": "A deterministic representative 16-colour sample of the Atari STE's extended 4-bit-per-channel (16 x 16 x 16 = 4096 total colours) hardware RGB DAC, using the same hue layout as the atari-st palette at the STE's deeper colour precision. Like the ST, the STE displays 16 of its total colour space simultaneously in standard low-resolution modes; this is a representative sample, not a captured ROM palette.",
+  "notes": "A deterministic representative 16-colour sample of the Atari STE's extended 4-bit-per-channel (16 x 16 x 16 = 4096 total colours) hardware RGB DAC, using the same hue layout as the atari-st palette at the STE's deeper colour precision. Like the ST, the STE displays 16 of its total colour space simultaneously in standard low-resolution modes; this is a representative sample, not a captured ROM palette.",
   "tags": [
     "atari",
     "ste",

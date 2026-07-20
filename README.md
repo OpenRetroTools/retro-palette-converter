@@ -91,21 +91,18 @@ compatibility.
 - [x] **M2.3c Sinclair Platform Pack** — ZX Spectrum 48K and 128K profiles with
   normal, bright, and automatic-bright fixed palettes. Attribute-cell
   restrictions remain planned for a later milestone.
-
-### Planned platform packs
-
-- **M2.3d Nintendo Platform Pack** — Game Boy, Game Boy Color, NES/Famicom,
-  SNES/Super Famicom, and Virtual Boy, represented as fixed palettes,
-  selectable hardware colour spaces, generated palettes, or mode-specific
-  constraints according to each system.
-- **M2.3e Sega Platform Pack** — Master System, Game Gear, Mega Drive/Genesis,
-  Sega CD where palette behaviour differs, and 32X, including relevant
-  display-mode and simultaneous-colour limits.
-- **M2.3f Classic Computers and Display Standards Pack** — IBM PC CGA, EGA,
-  VGA/MCGA, Hercules, Apple II, Apple IIGS, classic Macintosh monochrome,
-  Macintosh II colour, MSX, MSX2, Sharp X68000, and Acorn Archimedes. Separate
-  fixed defaults from selectable colour spaces, generated/adaptive palettes,
-  and display-mode-specific constraints.
+- [x] **M2.3d Nintendo Platform Pack** — NES, Game Boy, Game Boy Pocket, Game
+  Boy Color, and Super NES display profiles. Hardware rendering restrictions
+  remain planned for later milestones.
+- [x] **M2.3e Sega Platform Pack** — Master System, Game Gear, and Mega Drive /
+  Genesis representative display profiles using their deterministic RGB colour
+  spaces.
+- [x] **M2.3f Classic Computers and Display Standards Pack** — IBM CGA, EGA,
+  VGA 16/256, classic Macintosh monochrome and 8-bit, Hercules monochrome, and
+  Sharp X68000 representative display palettes.
+- [x] **M2.3.9 Architecture and Quality Review** — automatic fixed-palette
+  discovery, validated canonical metadata, cross-registry consistency checks,
+  and generated platform/palette inventory.
 
 ### M2.4 — Custom Palettes and Palette Interchange
 
@@ -205,6 +202,10 @@ The built-in collection includes Amiga OCS/ECS/AGA, Commodore 64, VIC-20,
 Commodore Plus/4, Game Boy, EGA, PICO-8, DawnBringer 16, the Atari platform
 pack (2600/TIA, 8-bit ANTIC/GTIA, ST, STE, Falcon030), and Sinclair ZX
 Spectrum 48K/128K profiles with normal, bright, and automatic-bright modes.
+The Nintendo platform pack adds NES, Game Boy, Game Boy Pocket, Game Boy
+Color, and Super NES display profiles.
+The Sega platform pack adds Master System, Game Gear, and Mega Drive / Genesis
+representative display profiles.
 See [supported platforms](docs/supported-platforms.md). Use
 `retropal palettes --verbose` to inspect metadata, or
 `retropal palettes --family Sinclair` to list the Sinclair palettes.

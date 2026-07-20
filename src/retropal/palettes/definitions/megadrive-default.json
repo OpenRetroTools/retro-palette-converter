@@ -1,0 +1,34 @@
+{
+  "id": "megadrive-default",
+  "display_name": "Sega Mega Drive / Genesis — 9-bit RGB",
+  "manufacturer": "Sega",
+  "platform": "Sega Mega Drive / Genesis",
+  "family": "Sega",
+  "year": 1988,
+  "colour_count": 512,
+  "bit_depth": "9-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
+  "description": "The complete deterministic 512-colour Mega Drive / Genesis 9-bit RGB display colour space.",
+  "notes": "Representative conversion palette only; CRAM, shadow/highlight mode, priorities, and palette animation are not emulated.",
+  "tags": [
+    "sega",
+    "mega-drive",
+    "genesis",
+    "console",
+    "16-bit",
+    "9-bit"
+  ],
+  "platform_family": "Sega home console",
+  "generation": "fourth generation",
+  "rgb_levels": [
+    0,
+    36,
+    73,
+    109,
+    146,
+    182,
+    219,
+    255
+  ]
+}

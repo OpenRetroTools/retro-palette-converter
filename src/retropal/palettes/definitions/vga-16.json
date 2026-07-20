@@ -1,20 +1,24 @@
 {
-  "id": "ega",
-  "display_name": "IBM EGA",
+  "id": "vga-16",
+  "display_name": "IBM VGA — Default 16",
   "manufacturer": "IBM",
-  "platform": "IBM EGA",
+  "platform": "IBM Video Graphics Array",
   "family": "Classic PC",
-  "year": 1984,
+  "year": 1987,
   "colour_count": 16,
   "bit_depth": "4-bit indexed",
-  "dac_size": null,
-  "palette_source": "Bundled canonical palette definition",
-  "description": "The standard 16-colour IBM EGA palette.",
-  "notes": "The standard 16-colour IBM EGA palette.",
+  "dac_size": "18-bit DAC (6 bits per channel)",
+  "palette_source": "VGA BIOS default 16-colour mapping",
+  "description": "The canonical VGA default 16-colour palette.",
+  "notes": "DAC programming, hardware gamma, and display timing are not emulated.",
   "tags": [
+    "ibm",
     "pc",
-    "ega"
+    "vga",
+    "4-bit"
   ],
+  "platform_family": "IBM PC graphics",
+  "generation": "VGA",
   "colors": [
     [
       0,

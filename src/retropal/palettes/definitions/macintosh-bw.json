@@ -1,0 +1,34 @@
+{
+  "id": "macintosh-bw",
+  "display_name": "Macintosh — Black & White",
+  "manufacturer": "Apple Computer",
+  "platform": "Apple Macintosh",
+  "family": "Apple",
+  "year": 1984,
+  "colour_count": 2,
+  "bit_depth": "1-bit",
+  "dac_size": null,
+  "palette_source": "Original Macintosh logical display values",
+  "description": "The original Macintosh black-and-white display palette.",
+  "notes": "QuickDraw behaviour, hardware gamma, and monitor characteristics are not emulated.",
+  "tags": [
+    "apple",
+    "macintosh",
+    "monochrome",
+    "1-bit"
+  ],
+  "platform_family": "Classic Macintosh",
+  "generation": "68k Macintosh",
+  "colors": [
+    [
+      255,
+      255,
+      255
+    ],
+    [
+      0,
+      0,
+      0
+    ]
+  ]
+}

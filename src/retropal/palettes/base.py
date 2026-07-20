@@ -21,6 +21,11 @@ class PaletteInfo:
     adaptive: bool = False
     platform: str | None = None
     notes: str = ""
+    generation: str | None = None
+    platform_family: str | None = None
+    bit_depth: str | None = None
+    dac_size: str | None = None
+    palette_source: str | None = None
 
 
 class Palette(Protocol):

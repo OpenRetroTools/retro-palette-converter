@@ -252,3 +252,107 @@ def test_sinclair_profile_selection_updates_visible_palette(
     choose_palette_like_user(window, qt_app, "zx-spectrum-48k-normal")
     assert visible_swatch_colors(window) == load_fixed_palette("zx-spectrum-48k-normal").colors
     assert qimage_checksum(window) != auto_checksum
+
+
+def test_all_nintendo_profiles_filter_and_render_visible_palettes(
+    window: MainWindow,
+    qt_app: QApplication,
+) -> None:
+    profile_palettes = (
+        ("nintendo-nes", "nes-default"),
+        ("nintendo-game-boy", "gameboy-dmg"),
+        ("nintendo-game-boy-pocket", "gameboy-pocket"),
+        ("nintendo-game-boy-color", "gameboy-color"),
+        ("nintendo-snes", "snes-default"),
+    )
+    checksums = []
+
+    for profile_id, palette_id in profile_palettes:
+        profile_index = window._profile_combo.findData(profile_id)
+        assert profile_index >= 0
+        window._profile_combo.setCurrentIndex(profile_index)
+        qt_app.processEvents()
+
+        assert window._profile_combo.currentData() == profile_id
+        assert window._palette_combo.count() == 1
+        assert window._palette_combo.currentData() == palette_id
+        expected = load_fixed_palette(palette_id).colors
+        assert window._palette_view.swatch_count == len(expected)
+        assert visible_swatch_colors(window) == expected
+        checksums.append(qimage_checksum(window))
+
+    assert len(set(checksums)) == len(profile_palettes)
+
+
+def test_all_sega_profiles_filter_and_render_visible_palettes(
+    window: MainWindow,
+    qt_app: QApplication,
+) -> None:
+    profile_palettes = (
+        ("sega-master-system", "master-system-default"),
+        ("sega-game-gear", "game-gear-default"),
+        ("sega-megadrive", "megadrive-default"),
+    )
+    checksums = []
+
+    for profile_id, palette_id in profile_palettes:
+        profile_index = window._profile_combo.findData(profile_id)
+        assert profile_index >= 0
+        window._profile_combo.setCurrentIndex(profile_index)
+        qt_app.processEvents()
+
+        assert window._profile_combo.currentData() == profile_id
+        assert window._palette_combo.count() == 1
+        assert window._palette_combo.currentData() == palette_id
+        expected = load_fixed_palette(palette_id).colors
+        expected_visible = window._palette_view._sample_visible_colors(expected)
+        assert window._palette_view.swatch_count == len(expected_visible)
+        assert window._palette_view.visible_colors == expected_visible
+        assert visible_swatch_colors(window) == expected_visible
+        checksums.append(qimage_checksum(window))
+
+    assert len(set(checksums)) == len(profile_palettes)
+
+
+def test_all_classic_display_profiles_filter_and_render_visible_palettes(
+    window: MainWindow,
+    qt_app: QApplication,
+) -> None:
+    profile_palettes = (
+        ("ibm-pc-cga", ("cga-palette-0", "cga-palette-1")),
+        ("ibm-pc-ega", ("ega-default",)),
+        ("ibm-pc-vga-16", ("vga-16",)),
+        ("ibm-pc-vga-256", ("vga-256",)),
+        ("apple-macintosh-bw", ("macintosh-bw",)),
+        ("apple-macintosh-8bit", ("macintosh-8bit",)),
+        ("hercules-monochrome", ("hercules-default",)),
+        ("sharp-x68000", ("x68000-default",)),
+    )
+    checksums: dict[str, str] = {}
+
+    for profile_id, palette_ids in profile_palettes:
+        profile_index = window._profile_combo.findData(profile_id)
+        assert profile_index >= 0
+        window._profile_combo.setCurrentIndex(profile_index)
+        qt_app.processEvents()
+
+        assert window._profile_combo.currentData() == profile_id
+        assert (
+            tuple(
+                window._palette_combo.itemData(index)
+                for index in range(window._palette_combo.count())
+            )
+            == palette_ids
+        )
+        for palette_id in palette_ids:
+            choose_palette_like_user(window, qt_app, palette_id)
+            expected = load_fixed_palette(palette_id).colors
+            expected_visible = window._palette_view._sample_visible_colors(expected)
+            assert window._palette_view.visible_colors == expected_visible
+            assert visible_swatch_colors(window) == expected_visible
+            checksums[palette_id] = qimage_checksum(window)
+
+    assert checksums["cga-palette-0"] != checksums["cga-palette-1"]
+    assert checksums["vga-256"] != checksums["vga-16"]
+    assert checksums["macintosh-8bit"] != checksums["macintosh-bw"]
+    assert checksums["x68000-default"] != checksums["hercules-default"]

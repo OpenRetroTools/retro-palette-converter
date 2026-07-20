@@ -15,6 +15,7 @@ class PaletteView(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self._colors: tuple[RGBColor, ...] = ()
+        self._visible_colors: tuple[RGBColor, ...] = ()
         self._layout = QGridLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setHorizontalSpacing(0)
@@ -28,7 +29,8 @@ class PaletteView(QWidget):
                 widget.setParent(None)
                 widget.deleteLater()
         self._colors = colors
-        for index, color in enumerate(colors):
+        self._visible_colors = self._sample_visible_colors(colors)
+        for index, color in enumerate(self._visible_colors):
             swatch = QWidget(self)
             swatch.setObjectName(f"palette-swatch-{index}")
             swatch.setProperty("rgb", color)
@@ -49,6 +51,19 @@ class PaletteView(QWidget):
     def swatch_count(self) -> int:
         """Return the number of swatch widgets currently installed."""
         return self._layout.count()
+
+    @property
+    def visible_colors(self) -> tuple[RGBColor, ...]:
+        """Return the deterministic subset represented by visible swatches."""
+        return self._visible_colors
+
+    @staticmethod
+    def _sample_visible_colors(
+        colors: tuple[RGBColor, ...], maximum: int = 256
+    ) -> tuple[RGBColor, ...]:
+        if len(colors) <= maximum:
+            return colors
+        return tuple(colors[index * (len(colors) - 1) // (maximum - 1)] for index in range(maximum))
 
     def sizeHint(self) -> QSize:  # noqa: N802 - Qt API
         return QSize(320, 52)

@@ -64,7 +64,7 @@ def _run_palette_trace_sequence(application: object, window: object, image_path:
                 f"step={step}",
                 f"palette_id={palette_id}",
                 f"visible_preview_checksum={checksum}",
-                f"swatch_rgb={window._palette_view.colors!r}",
+                f"swatch_rgb={window._palette_view.visible_colors!r}",
                 f"swatch_count={window._palette_view.swatch_count}",
                 flush=True,
             )

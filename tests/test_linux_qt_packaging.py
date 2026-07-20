@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import shutil
 import stat
 import subprocess
 from pathlib import Path
@@ -95,7 +96,7 @@ def test_packaged_fixed_palette_definitions_are_required(tmp_path: Path) -> None
     module = load_module(VERIFY_PALETTES_SCRIPT, "verify_packaged_palettes")
     bundle = tmp_path / "RetroPaletteConverter"
 
-    with pytest.raises(RuntimeError, match="commodore-64,.*atari-st"):
+    with pytest.raises(RuntimeError, match="atari-st,.*commodore-64"):
         module.verify_bundle(bundle)
 
 
@@ -105,9 +106,11 @@ def test_packaged_fixed_palette_definitions_are_accepted(tmp_path: Path) -> None
     definitions = bundle / "_internal/retropal/palettes/definitions"
     definitions.mkdir(parents=True)
     for palette_id in module.fixed_palette_ids():
-        (definitions / f"{palette_id}.json").write_text("{}", encoding="utf-8")
+        shutil.copy2(
+            ROOT / "src/retropal/palettes/definitions" / f"{palette_id}.json",
+            definitions / f"{palette_id}.json",
+        )
 
     module.verify_bundle(bundle)
-
-    assert (definitions / "zx-spectrum-48k-auto.json").is_file()
-    assert (definitions / "zx-spectrum-128k-bright.json").is_file()
+    packaged_ids = {path.stem for path in definitions.glob("*.json")}
+    assert packaged_ids == set(module.fixed_palette_ids())

@@ -1,10 +1,16 @@
 {
   "id": "atari-2600-tia",
-  "name": "Atari 2600 (TIA, NTSC)",
-  "family": "Atari",
+  "display_name": "Atari 2600 (TIA, NTSC)",
   "manufacturer": "Atari",
+  "platform": "Atari 2600 (TIA, NTSC)",
+  "family": "Atari",
   "year": 1977,
+  "colour_count": 128,
+  "bit_depth": "7-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
   "description": "The Television Interface Adaptor's 128-colour NTSC palette (16 hues x 8 luminances), sourced from the Stella emulator's established NTSC reference table. TIA colour is composite-video derived: real output varies by console revision, encoder, and television. The PAL TIA uses a different, non-equivalent hue layout and is not included here.",
+  "notes": "The Television Interface Adaptor's 128-colour NTSC palette (16 hues x 8 luminances), sourced from the Stella emulator's established NTSC reference table. TIA colour is composite-video derived: real output varies by console revision, encoder, and television. The PAL TIA uses a different, non-equivalent hue layout and is not included here.",
   "tags": [
     "atari",
     "2600",

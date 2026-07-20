@@ -1,10 +1,16 @@
 {
   "id": "commodore-64",
-  "name": "Commodore 64 (VICE)",
-  "family": "Commodore",
+  "display_name": "Commodore 64 (VICE)",
   "manufacturer": "Commodore",
+  "platform": "Commodore 64 (VICE)",
+  "family": "Commodore",
   "year": 1982,
+  "colour_count": 16,
+  "bit_depth": "4-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
   "description": "A practical VICE-compatible RGB representation of the VIC-II 16-colour palette.",
+  "notes": "A practical VICE-compatible RGB representation of the VIC-II 16-colour palette.",
   "tags": [
     "commodore",
     "c64",

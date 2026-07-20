@@ -1,0 +1,30 @@
+{
+  "id": "master-system-default",
+  "display_name": "Sega Master System — 6-bit RGB",
+  "manufacturer": "Sega",
+  "platform": "Sega Master System",
+  "family": "Sega",
+  "year": 1985,
+  "colour_count": 64,
+  "bit_depth": "6-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
+  "description": "The complete deterministic 64-colour Master System 6-bit RGB display colour space.",
+  "notes": "Representative conversion palette only; CRAM layout and hardware display restrictions are not emulated.",
+  "tags": [
+    "sega",
+    "master-system",
+    "sms",
+    "console",
+    "8-bit",
+    "6-bit"
+  ],
+  "platform_family": "Sega home console",
+  "generation": "third generation",
+  "rgb_levels": [
+    0,
+    85,
+    170,
+    255
+  ]
+}

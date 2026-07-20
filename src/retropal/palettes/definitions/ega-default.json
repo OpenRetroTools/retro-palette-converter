@@ -1,20 +1,24 @@
 {
-  "id": "ega",
-  "display_name": "IBM EGA",
+  "id": "ega-default",
+  "display_name": "IBM EGA — Default 16",
   "manufacturer": "IBM",
-  "platform": "IBM EGA",
+  "platform": "IBM Enhanced Graphics Adapter",
   "family": "Classic PC",
   "year": 1984,
   "colour_count": 16,
-  "bit_depth": "4-bit indexed",
+  "bit_depth": "4-bit indexed / 6-bit RGB",
   "dac_size": null,
-  "palette_source": "Bundled canonical palette definition",
-  "description": "The standard 16-colour IBM EGA palette.",
-  "notes": "The standard 16-colour IBM EGA palette.",
+  "palette_source": "IBM EGA default 16-colour mapping",
+  "description": "The canonical default 16-colour EGA mapping.",
+  "notes": "Display timing and monitor characteristics are not emulated.",
   "tags": [
+    "ibm",
     "pc",
-    "ega"
+    "ega",
+    "4-bit"
   ],
+  "platform_family": "IBM PC graphics",
+  "generation": "second-generation IBM PC graphics",
   "colors": [
     [
       0,

@@ -311,7 +311,7 @@ class MainWindow(QMainWindow):
             f"qimage_checksum={visible_checksum}",
             f"pixmap_cache_key={pixmap.cacheKey()}",
             f"visible_preview_checksum={visible_checksum}",
-            f"swatch_rgb={self._palette_view.colors!r}",
+            f"swatch_rgb={self._palette_view.visible_colors!r}",
             f"swatch_count={self._palette_view.swatch_count}",
             flush=True,
         )

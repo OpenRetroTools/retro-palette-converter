@@ -1,20 +1,25 @@
 {
-  "id": "gameboy",
-  "display_name": "Game Boy",
+  "id": "gameboy-dmg",
+  "display_name": "Game Boy (DMG)",
   "manufacturer": "Nintendo",
-  "platform": "Game Boy",
+  "platform": "Nintendo Game Boy",
   "family": "Nintendo",
   "year": 1989,
   "colour_count": 4,
   "bit_depth": "2-bit indexed",
   "dac_size": null,
   "palette_source": "Bundled canonical palette definition",
-  "description": "Original Game Boy four-shade green palette.",
-  "notes": "Original Game Boy four-shade green palette.",
+  "description": "A four-shade green LCD approximation for the original DMG Game Boy display.",
+  "notes": "Display palette only; tile and sprite restrictions are not emulated.",
   "tags": [
+    "nintendo",
+    "game-boy",
+    "dmg",
     "handheld",
-    "game-boy"
+    "monochrome"
   ],
+  "platform_family": "Game Boy",
+  "generation": "fourth generation handheld",
   "colors": [
     [
       15,

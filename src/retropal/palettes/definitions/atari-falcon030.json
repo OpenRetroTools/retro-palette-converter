@@ -1,10 +1,16 @@
 {
   "id": "atari-falcon030",
-  "name": "Atari Falcon030",
-  "family": "Atari",
+  "display_name": "Atari Falcon030",
   "manufacturer": "Atari",
+  "platform": "Atari Falcon030",
+  "family": "Atari",
   "year": 1992,
+  "colour_count": 256,
+  "bit_depth": "8-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
   "description": "A deterministic representative 256-colour palette sampling the Atari Falcon030's 6-bit-per-channel (64 x 64 x 64 = 262,144 total colours, 18-bit) hardware RGB DAC as an evenly stepped 8x8x4 R/G/B cube, representing its indexed 256-colour palette mode. The Falcon can additionally display up to 65,536 simultaneous colours via a separate 16-bit RGB565 true-colour mode, which is not an indexed palette and is not represented by this entry.",
+  "notes": "A deterministic representative 256-colour palette sampling the Atari Falcon030's 6-bit-per-channel (64 x 64 x 64 = 262,144 total colours, 18-bit) hardware RGB DAC as an evenly stepped 8x8x4 R/G/B cube, representing its indexed 256-colour palette mode. The Falcon can additionally display up to 65,536 simultaneous colours via a separate 16-bit RGB565 true-colour mode, which is not an indexed palette and is not represented by this entry.",
   "tags": [
     "atari",
     "falcon",

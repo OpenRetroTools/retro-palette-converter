@@ -1,0 +1,45 @@
+{
+  "id": "gameboy-pocket",
+  "display_name": "Game Boy Pocket",
+  "manufacturer": "Nintendo",
+  "platform": "Nintendo Game Boy Pocket",
+  "family": "Nintendo",
+  "year": 1996,
+  "colour_count": 4,
+  "bit_depth": "2-bit indexed",
+  "dac_size": null,
+  "palette_source": "Bundled canonical palette definition",
+  "description": "A neutral four-shade approximation of the higher-contrast Game Boy Pocket LCD.",
+  "notes": "Display palette only; tile and sprite restrictions are not emulated.",
+  "tags": [
+    "nintendo",
+    "game-boy",
+    "pocket",
+    "handheld",
+    "monochrome"
+  ],
+  "platform_family": "Game Boy",
+  "generation": "fourth generation handheld",
+  "colors": [
+    [
+      30,
+      30,
+      26
+    ],
+    [
+      92,
+      92,
+      82
+    ],
+    [
+      168,
+      168,
+      150
+    ],
+    [
+      224,
+      224,
+      206
+    ]
+  ]
+}

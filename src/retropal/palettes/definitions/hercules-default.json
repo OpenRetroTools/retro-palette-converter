@@ -1,0 +1,34 @@
+{
+  "id": "hercules-default",
+  "display_name": "Hercules — Monochrome",
+  "manufacturer": "Hercules Computer Technology",
+  "platform": "Hercules Graphics Card",
+  "family": "Classic PC",
+  "year": 1982,
+  "colour_count": 2,
+  "bit_depth": "1-bit",
+  "dac_size": null,
+  "palette_source": "Logical Hercules monochrome display values",
+  "description": "Logical black-and-white values for Hercules monochrome graphics.",
+  "notes": "Monitor phosphor colour, persistence, and hardware gamma are not emulated.",
+  "tags": [
+    "hercules",
+    "pc",
+    "monochrome",
+    "1-bit"
+  ],
+  "platform_family": "IBM PC graphics",
+  "generation": "monochrome PC graphics",
+  "colors": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      255,
+      255,
+      255
+    ]
+  ]
+}

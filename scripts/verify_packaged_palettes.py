@@ -4,9 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
-from retropal.palettes.fixed import fixed_palette_ids
+from retropal.palettes.fixed import _palette_from_payload, fixed_palette_ids
 
 
 def verify_bundle(bundle: Path) -> None:
@@ -21,6 +22,14 @@ def verify_bundle(bundle: Path) -> None:
             f"Packaged fixed-palette definitions are missing from {definitions}: "
             + ", ".join(missing)
         )
+    for palette_id in fixed_palette_ids():
+        path = definitions / f"{palette_id}.json"
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        palette = _palette_from_payload(payload, str(path))
+        if palette.id != palette_id:
+            raise RuntimeError(
+                f"Packaged palette {path} contains ID {palette.id!r}, expected {palette_id!r}"
+            )
 
 
 def main() -> int:
