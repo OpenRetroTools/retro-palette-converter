@@ -89,5 +89,9 @@ lossless result or explicit metadata warnings.
 The GUI exposes the same registry through **Import…** and **Export…** in the
 custom palette dialog and displays metadata-loss reports.
 
-Indexed-image extraction, IFF/ILBM `CMAP`/`CRNG`, Brilliance PLT, and the broad
-M2.4f conversion/validation engine remain outside this milestone.
+Indexed-image extraction is documented in
+[`indexed-image-palettes.md`](indexed-image-palettes.md). IFF/ILBM
+`CMAP`/`CRNG` uses a separate container-preserving layer documented in
+[`amiga-palette-interchange.md`](amiga-palette-interchange.md), rather than a
+standard palette codec. Brilliance PLT and the broad M2.4f
+conversion/validation engine remain planned.

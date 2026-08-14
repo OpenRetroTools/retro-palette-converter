@@ -27,3 +27,7 @@ Indexed-image parsing rules are documented in
 [`docs/indexed-image-palettes.md`](docs/indexed-image-palettes.md). Parsers must
 bounds-check declared structures and preserve complete stored palette tables;
 pixel usage and transparency remain outside `CustomPalette` identity.
+Amiga container rules and preservation guarantees are documented in
+[`docs/amiga-palette-interchange.md`](docs/amiga-palette-interchange.md).
+ILBM changes must preserve ordered non-CMAP chunks and keep CRNG/raw document
+state outside the generic custom-palette model.

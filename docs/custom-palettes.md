@@ -63,6 +63,10 @@ to the same Qt-independent immutable model and store used by the CLI.
 Standard GPL, JASC-PAL, RIFF PAL, ACT, JSON, and CSV interchange is documented
 in [`palette-interchange.md`](palette-interchange.md). Stored-palette extraction
 from indexed PNG, GIF, and BMP is documented in
-[`indexed-image-palettes.md`](indexed-image-palettes.md). Amiga IFF/ILBM
-metadata, Brilliance PLT, and broad cross-format validation remain M2.4d–f
-work.
+[`indexed-image-palettes.md`](indexed-image-palettes.md). Brilliance PLT and
+broad cross-format validation remain M2.4e–f work.
+
+Amiga IFF/ILBM CMAP workflows and their separate container/CRNG state are
+documented in
+[`amiga-palette-interchange.md`](amiga-palette-interchange.md). Native palette
+files retain imported RGB entries but not ILBM-specific metadata.

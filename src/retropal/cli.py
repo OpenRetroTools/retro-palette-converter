@@ -13,6 +13,13 @@ from retropal.core.dither import DITHER_IDS
 from retropal.core.image_io import inspect_image
 from retropal.core.models import DitherMode
 from retropal.palettes import PALETTE_IDS, iter_palette_info, list_by_family
+from retropal.palettes.amiga_iff import (
+    IlbmDocument,
+    IlbmPaletteError,
+    import_ilbm_palette,
+    inspect_ilbm,
+    replace_ilbm_palette,
+)
 from retropal.palettes.base import RGBColor
 from retropal.palettes.custom import CustomPaletteError
 from retropal.palettes.indexed import INDEXED_IMAGE_FORMATS, extract_indexed_palette
@@ -162,6 +169,12 @@ def build_parser() -> argparse.ArgumentParser:
     image_import.add_argument("--format", choices=INDEXED_IMAGE_FORMATS)
     image_import.add_argument("--id", dest="palette_id")
     image_import.add_argument("--name")
+    ilbm_import = custom_commands.add_parser(
+        "import-ilbm", help="Import the effective CMAP from an Amiga ILBM."
+    )
+    ilbm_import.add_argument("file", type=Path)
+    ilbm_import.add_argument("--id", dest="palette_id")
+    ilbm_import.add_argument("--name")
     interchange_export = custom_commands.add_parser(
         "export", help="Export a custom palette to an interchange format."
     )
@@ -171,6 +184,21 @@ def build_parser() -> argparse.ArgumentParser:
     )
     interchange_export.add_argument("--output", "-o", required=True, type=Path)
     interchange_export.add_argument("--overwrite", action="store_true")
+
+    ilbm_parser = commands.add_parser("ilbm", help="Inspect or update Amiga ILBM metadata.")
+    ilbm_parser.add_argument(
+        "--store", type=Path, default=default_custom_palette_directory(), help="Palette directory."
+    )
+    ilbm_commands = ilbm_parser.add_subparsers(dest="ilbm_command", required=True)
+    ilbm_inspect = ilbm_commands.add_parser("inspect", help="Inspect ILBM chunks and CRNG ranges.")
+    ilbm_inspect.add_argument("input", type=Path)
+    ilbm_replace = ilbm_commands.add_parser(
+        "replace-palette", help="Replace or add CMAP while preserving other chunks."
+    )
+    ilbm_replace.add_argument("input", type=Path)
+    ilbm_replace.add_argument("--palette", required=True)
+    ilbm_replace.add_argument("--output", "-o", required=True, type=Path)
+    ilbm_replace.add_argument("--overwrite", action="store_true")
     return parser
 
 
@@ -215,6 +243,20 @@ def _custom_palette_command(args: argparse.Namespace) -> int:
         if result.transparency is not None:
             indexes = ", ".join(map(str, result.transparency.non_opaque_indexes)) or "none"
             print(f"Non-opaque palette indexes: {indexes}")
+        for message in result.messages:
+            print(f"Warning: {message}")
+        print(f"Saved custom palette {palette.id} to {path}")
+        return 0
+    if command == "import-ilbm":
+        result = import_ilbm_palette(
+            args.file,
+            palette_id=args.palette_id,
+            name=args.name,
+        )
+        palette = store.add(result.palette)
+        path = store.save(palette.id)
+        print(f"Imported {len(palette.colors)} ordered CMAP entries as {palette.id}")
+        _print_ilbm_document(result.document)
         for message in result.messages:
             print(f"Warning: {message}")
         print(f"Saved custom palette {palette.id} to {path}")
@@ -279,6 +321,38 @@ def _print_interchange_report(messages: tuple[str, ...]) -> None:
     print("Interchange report:")
     for message in messages:
         print(f"  Warning: {message}")
+
+
+def _print_ilbm_document(document: IlbmDocument) -> None:
+    print(f"FORM ILBM: {len(document.chunks)} chunks")
+    print(
+        "Chunk order: " + " ".join(chunk.id.decode("ascii", "replace") for chunk in document.chunks)
+    )
+    print(f"CMAP entries: {len(document.palette.colors) if document.palette else 0}")
+    print(f"CRNG ranges: {len(document.color_cycles)}")
+    for index, cycle in enumerate(document.color_cycles):
+        state = "enabled" if cycle.enabled else "disabled"
+        direction = "reverse" if cycle.reversed else "forward"
+        print(
+            f"  {index}: indexes {cycle.low}..{cycle.high}, rate={cycle.rate}, "
+            f"flags=0x{cycle.flags:04X}, {state}, {direction}"
+        )
+
+
+def _ilbm_command(args: argparse.Namespace) -> int:
+    if args.ilbm_command == "inspect":
+        _print_ilbm_document(inspect_ilbm(args.input))
+        return 0
+    if args.ilbm_command == "replace-palette":
+        store = CustomPaletteStore(args.store)
+        store.load_all()
+        palette = store.get(args.palette)
+        result = replace_ilbm_palette(args.input, args.output, palette, overwrite=args.overwrite)
+        print(f"Wrote {args.output}")
+        for message in result.messages:
+            print(message)
+        return 0
+    raise IlbmPaletteError(f"Unknown ILBM command: {args.ilbm_command}")
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -354,6 +428,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             return _custom_palette_command(args)
         except (OSError, CustomPaletteError, NativePaletteError, PaletteCodecError) as exc:
+            parser.error(str(exc))
+    if args.command == "ilbm":
+        try:
+            return _ilbm_command(args)
+        except (OSError, CustomPaletteError, IlbmPaletteError) as exc:
             parser.error(str(exc))
     parser.error(f"Unknown command: {args.command}")
     return 2

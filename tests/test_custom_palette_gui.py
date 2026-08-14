@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QApplication
 from retropal.gui.custom_palette_dialog import CustomPaletteDialog
 from retropal.gui.main_window import MainWindow
 from retropal.palettes.store import CustomPaletteStore
+from tests.ilbm_fixtures import rich_ilbm
 from tests.indexed_image_fixtures import indexed_png
 
 
@@ -142,3 +143,37 @@ def test_custom_palette_dialog_imports_indexed_image_with_report(
     assert store.path_for("gui-indexed").exists()
     assert reports and "all 3 stored entries" in reports[0]
     assert "Non-opaque indexes: 0" in reports[0]
+
+
+def test_custom_palette_dialog_imports_and_updates_ilbm(
+    qt_app: QApplication,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+    source = tmp_path / "amiga.iff"
+    output = tmp_path / "updated.iff"
+    source.write_bytes(rich_ilbm())
+    store = CustomPaletteStore(tmp_path / "store")
+    dialog = CustomPaletteDialog(store)
+    warnings: list[str] = []
+    information: list[str] = []
+    monkeypatch.setattr(QFileDialog, "getOpenFileName", lambda *args, **kwargs: (str(source), ""))
+    monkeypatch.setattr(
+        QMessageBox, "warning", lambda _parent, _title, message: warnings.append(message)
+    )
+    monkeypatch.setattr(
+        QMessageBox, "information", lambda _parent, _title, message: information.append(message)
+    )
+
+    dialog._import_ilbm()
+
+    assert store.list()[0].colors == ((1, 2, 3), (255, 0, 128), (1, 2, 3))
+    assert warnings and "CRNG 1: indexes 4–7, rate 8192" in warnings[0]
+
+    monkeypatch.setattr(QFileDialog, "getSaveFileName", lambda *args, **kwargs: (str(output), ""))
+    dialog._update_ilbm()
+
+    assert output.exists()
+    assert information and "all other chunk payloads" in information[-1]

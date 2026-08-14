@@ -18,6 +18,7 @@ hardware-inspired retro palettes.
 - Ordered custom palettes with native save/load and a compact GUI editor
 - GPL, JASC-PAL, RIFF PAL, ACT, JSON, and CSV custom-palette interchange
 - stored-palette extraction from indexed PNG, GIF, and BMP images
+- Amiga IFF/ILBM CMAP import/update with CRNG and unknown-chunk preservation
 
 ## Development installation
 
@@ -65,6 +66,8 @@ uv run retropal custom-palettes create my-palette "My Palette" \
 uv run retropal custom-palettes show my-palette
 uv run retropal custom-palettes import palette.gpl
 uv run retropal custom-palettes import-image indexed-art.png
+uv run retropal custom-palettes import-ilbm amiga-picture.iff
+uv run retropal ilbm inspect amiga-picture.iff
 uv run retropal custom-palettes export my-palette --format riff-pal \
   --output palette.pal
 uv run retropal convert input.png \
@@ -133,7 +136,7 @@ before formats and round trips have been validated.
   metadata.
 - [x] **M2.4c Indexed Image Palette Import** — extract palettes and available
   transparency metadata from indexed PNG, GIF, and BMP images.
-- **M2.4d Amiga Palette Interchange** — import and export IFF/ILBM `CMAP` and
+- [x] **M2.4d Amiga Palette Interchange** — import and export IFF/ILBM `CMAP` and
   Amiga `CRNG` metadata.
 - **M2.4e Brilliance PLT Compatibility** — add Brilliance PLT import and export
   after the format and round-trip behaviour have been validated.
@@ -143,9 +146,8 @@ before formats and round trips have been validated.
 
 ### M2.5 — Amiga Colour Cycling
 
-- Read `CRNG` ranges; preview and edit range, direction, and speed; provide an
-  animated preview; import and export cycle metadata; and preserve unrelated
-  IFF chunks where practical.
+- Build on M2.4d's `CRNG` parsing/preservation with range, direction, and speed
+  editing; animated preview; and explicit colour-cycle authoring workflows.
 
 ### M2.6 — Palette Analysis
 

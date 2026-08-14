@@ -61,5 +61,6 @@ summary shows stored, used, and unused entry counts plus transparency and GIF
 limitations. The imported palette can then be edited, saved, or selected like
 any other custom palette.
 
-IFF/ILBM and CMAP/CRNG (M2.4d), Brilliance PLT (M2.4e), and general palette
-conversion/validation (M2.4f) remain deliberately outside this feature.
+IFF/ILBM and CMAP/CRNG are handled by the separate metadata-preserving workflow
+in [`amiga-palette-interchange.md`](amiga-palette-interchange.md). Brilliance
+PLT (M2.4e) and general palette conversion/validation (M2.4f) remain planned.

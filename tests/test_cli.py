@@ -9,6 +9,7 @@ from retropal import __version__
 from retropal.cli import build_parser, main
 from retropal.core.dither import DITHER_IDS
 from retropal.palettes.native import load_native_palette
+from tests.ilbm_fixtures import rich_ilbm
 from tests.indexed_image_fixtures import indexed_bmp, indexed_gif, indexed_png
 
 
@@ -303,3 +304,56 @@ def test_custom_palette_cli_imports_indexed_images(
     palette = load_native_palette(saved)
     assert palette.colors[0] == (0, 0, 0)
     assert f"stored {format_name} entries" in capsys.readouterr().out
+
+
+def test_cli_ilbm_inspect_import_and_replace_palette(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    source = tmp_path / "picture.iff"
+    output = tmp_path / "updated.iff"
+    store = tmp_path / "store"
+    source.write_bytes(rich_ilbm())
+
+    assert main(["ilbm", "inspect", str(source)]) == 0
+    inspection = capsys.readouterr().out
+    assert "Chunk order: ANNO CRNG BMHD XXXX CMAP AUTH CRNG BODY" in inspection
+    assert "CMAP entries: 3" in inspection
+    assert "CRNG ranges: 2" in inspection
+    assert "indexes 4..7, rate=8192" in inspection
+
+    assert (
+        main(
+            [
+                "custom-palettes",
+                "--store",
+                str(store),
+                "import-ilbm",
+                str(source),
+                "--id",
+                "amiga-picture",
+            ]
+        )
+        == 0
+    )
+    imported = capsys.readouterr().out
+    assert "Imported 3 ordered CMAP entries" in imported
+    assert "CRNG colour-cycle metadata is not stored" in imported
+
+    assert (
+        main(
+            [
+                "ilbm",
+                "--store",
+                str(store),
+                "replace-palette",
+                str(source),
+                "--palette",
+                "amiga-picture",
+                "--output",
+                str(output),
+            ]
+        )
+        == 0
+    )
+    assert output.exists()
+    assert "all other chunk payloads" in capsys.readouterr().out

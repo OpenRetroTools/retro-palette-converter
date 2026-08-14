@@ -21,6 +21,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from retropal.palettes.amiga_iff import (
+    IlbmPaletteError,
+    import_ilbm_palette,
+    replace_ilbm_palette,
+)
 from retropal.palettes.custom import CustomPalette, CustomPaletteError
 from retropal.palettes.indexed import IndexedPaletteError, extract_indexed_palette
 from retropal.palettes.interchange import (
@@ -83,7 +88,9 @@ class CustomPaletteDialog(QDialog):
             ("Save", self._save_palette),
             ("Import…", self._import_palette),
             ("Import Image…", self._import_indexed_image),
+            ("Import ILBM…", self._import_ilbm),
             ("Export…", self._export_palette),
+            ("Update ILBM…", self._update_ilbm),
             ("Delete", self._delete_palette),
         ):
             button = QPushButton(label)
@@ -339,6 +346,66 @@ class CustomPaletteDialog(QDialog):
             QMessageBox.warning(self, "Indexed palette imported", "\n".join(details))
         else:
             QMessageBox.information(self, "Indexed palette imported", "\n".join(details))
+
+    def _import_ilbm(self) -> None:
+        filename, _ = QFileDialog.getOpenFileName(
+            self, "Import palette from ILBM", "", "Amiga ILBM (*.iff *.ilbm *.lbm)"
+        )
+        if not filename:
+            return
+        try:
+            result = import_ilbm_palette(Path(filename))
+            palette = self._store.add(result.palette)
+            self._store.save(palette.id)
+        except (OSError, CustomPaletteError, IlbmPaletteError) as exc:
+            QMessageBox.critical(self, "Could not import ILBM", str(exc))
+            return
+        self._refresh_palettes(palette.id)
+        cycles = result.document.color_cycles
+        details = [f"Imported {len(palette.colors)} ordered CMAP entries."]
+        details.extend(
+            f"CRNG {index}: indexes {cycle.low}–{cycle.high}, rate {cycle.rate}, "
+            f"{'enabled' if cycle.enabled else 'disabled'}, "
+            f"{'reverse' if cycle.reversed else 'forward'}"
+            for index, cycle in enumerate(cycles)
+        )
+        details.extend(result.messages)
+        if result.messages:
+            QMessageBox.warning(self, "ILBM palette imported", "\n".join(details))
+        else:
+            QMessageBox.information(self, "ILBM palette imported", "\n".join(details))
+
+    def _update_ilbm(self) -> None:
+        palette = self._current()
+        if palette is None:
+            return
+        source, _ = QFileDialog.getOpenFileName(
+            self, "Choose ILBM to update", "", "Amiga ILBM (*.iff *.ilbm *.lbm)"
+        )
+        if not source:
+            return
+        output, _ = QFileDialog.getSaveFileName(
+            self, "Save updated ILBM", Path(source).name, "Amiga ILBM (*.iff *.ilbm *.lbm)"
+        )
+        if not output:
+            return
+        output_path = Path(output)
+        if output_path.exists():
+            answer = QMessageBox.question(
+                self,
+                "Overwrite ILBM?",
+                f"{output_path.name} already exists. Overwrite it?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+        try:
+            result = replace_ilbm_palette(Path(source), output_path, palette, overwrite=True)
+        except (OSError, IlbmPaletteError) as exc:
+            QMessageBox.critical(self, "Could not update ILBM", str(exc))
+            return
+        QMessageBox.information(self, "ILBM updated", "\n".join(result.messages))
 
     def _show_report(self, title: str, messages: tuple[str, ...]) -> None:
         if messages:
