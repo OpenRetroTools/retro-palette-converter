@@ -19,6 +19,33 @@ def crng(rate: int, flags: int, low: int, high: int, reserved: int = 0) -> bytes
     return struct.pack(">HHHBB", reserved, rate, flags, low, high)
 
 
+def bmhd(
+    width: int,
+    height: int,
+    planes: int,
+    *,
+    masking: int = 0,
+    compression: int = 0,
+    transparent: int = 0,
+) -> bytes:
+    return struct.pack(
+        ">HHhhBBBBHBBhh",
+        width,
+        height,
+        0,
+        0,
+        planes,
+        masking,
+        compression,
+        0,
+        transparent,
+        1,
+        1,
+        width,
+        height,
+    )
+
+
 def rich_ilbm() -> bytes:
     colors = bytes((1, 2, 3, 255, 0, 128, 1, 2, 3))
     return ilbm_form(

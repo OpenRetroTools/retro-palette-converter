@@ -24,8 +24,10 @@ and retains the original alignment byte, including its value.
 ## Supported subset
 
 The parser accepts one complete top-level `FORM ILBM`. It records every child
-chunk in order with its exact payload and pad byte. It does not decode `BMHD`,
-`BODY`, bitplanes, compression, HAM, or EHB display semantics.
+chunk in order with its exact payload and pad byte. M2.5 adds a separate,
+read-only narrow indexed BODY preview decoder documented in
+[`amiga-colour-cycling.md`](amiga-colour-cycling.md); the preservation parser
+still never rewrites decoded BODY data.
 
 `CMAP` is zero or more RGB triples, ordered by colour-register index. For
 import into the non-empty `CustomPalette` model, the effective CMAP must contain
@@ -56,8 +58,9 @@ plus direct flag interpretations: bit 0 (`RNG_ACTIVE`) means enabled and bit 1
 without interpretation. Rate units use 16384 for 60 steps/second.
 
 Historical documentation warns that some Deluxe Paint output sets ACTIVE but
-uses rate 36 to mean inactive. RetroPal reports the stored bit and rate rather
-than guessing around this ambiguity. M2.4d does not edit or animate CRNG.
+uses rate 36 to mean inactive. M2.5's documented preview policy retains and
+reports the stored values while treating rate 36 as the historical stationary
+sentinel (rate zero is also stationary).
 
 ## Preservation and metadata boundaries
 
@@ -85,12 +88,13 @@ Writes refuse to replace an existing output unless `--overwrite` is supplied.
 Inspection lists chunk order, CMAP entry count, and each CRNG range's raw rate,
 flags, indexes, enabled bit, and direction bit.
 
-The custom-palette dialog provides **Import ILBM…** and **Update ILBM…**.
+The custom-palette dialog provides **Import ILBM…**, **Update ILBM…**, and
+**Cycle ILBM…**.
 Import displays CRNG summaries and native-persistence limitations. Update uses
 the currently selected custom palette as CMAP and writes a separate ILBM while
 preserving other chunks.
 
-Brilliance PLT export and the M2.5 colour-cycle preview/editor remain
+Brilliance PLT export and Brilliance DRNG/BRNG interpretation remain
 deliberately deferred.
 
 M2.4f validation can carry an `ilbm-document-metadata-not-preserved` issue when

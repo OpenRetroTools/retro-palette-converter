@@ -96,4 +96,5 @@ retropal custom-palettes import palette.plt --format brilliance-plt
 The imported register palette is saved through the ordinary native custom
 palette store. Native persistence cannot retain Brilliance gradient slots or
 range chunks; the import report states this loss. M2.4f can report this
-boundary, while M2.5 colour-cycle editing remains separate planned work.
+boundary. M2.5 edits and simulates documented CRNG only; Brilliance DRNG/BRNG
+semantics remain an evidence-gated research backlog.

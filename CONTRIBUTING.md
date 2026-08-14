@@ -42,3 +42,8 @@ execution policy are documented in
 pure, codec capabilities must remain the source of format truth, and new
 hardware constraints require documented metadata rather than inference from
 display names or tags.
+CRNG timing, immutable editing, indexed preview, and preservation requirements
+are documented in
+[`docs/amiga-colour-cycling.md`](docs/amiga-colour-cycling.md). Cycling must
+remain palette-state evaluation over an unchanged index buffer; BODY and
+unsupported DRNG/BRNG data must never be rewritten or interpreted speculatively.

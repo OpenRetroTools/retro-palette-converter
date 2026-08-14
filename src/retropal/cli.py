@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from collections.abc import Sequence
+from fractions import Fraction
 from pathlib import Path
 
 from retropal import __version__
@@ -15,11 +16,19 @@ from retropal.core.image_io import inspect_image
 from retropal.core.models import DitherMode
 from retropal.palettes import PALETTE_IDS, iter_palette_info, list_by_family
 from retropal.palettes.amiga_iff import (
+    ColorCycleRange,
     IlbmDocument,
     IlbmPaletteError,
+    add_ilbm_cycle,
+    decode_indexed_ilbm,
+    edit_ilbm_cycle,
     import_ilbm_palette,
     inspect_ilbm,
+    palette_at,
+    remove_ilbm_cycle,
+    render_indexed_preview,
     replace_ilbm_palette,
+    validate_cycles,
 )
 from retropal.palettes.base import RGBColor
 from retropal.palettes.custom import CustomPaletteError
@@ -253,6 +262,46 @@ def build_parser() -> argparse.ArgumentParser:
     ilbm_replace.add_argument("--palette", required=True)
     ilbm_replace.add_argument("--output", "-o", required=True, type=Path)
     ilbm_replace.add_argument("--overwrite", action="store_true")
+    ilbm_cycles = ilbm_commands.add_parser("cycles", help="Inspect CRNG colour-cycle ranges.")
+    ilbm_cycles.add_argument("input", type=Path)
+    ilbm_cycles.add_argument("--json", action="store_true")
+    cycle_at = ilbm_commands.add_parser("cycle-at", help="Evaluate palette state at elapsed time.")
+    cycle_at.add_argument("input", type=Path)
+    cycle_at.add_argument("--time", required=True, type=Fraction)
+    cycle_at.add_argument("--json", action="store_true")
+    cycle_preview = ilbm_commands.add_parser(
+        "cycle-preview", help="Render an indexed ILBM at an elapsed time."
+    )
+    cycle_preview.add_argument("input", type=Path)
+    cycle_preview.add_argument("--time", required=True, type=Fraction)
+    cycle_preview.add_argument("--output", "-o", required=True, type=Path)
+    cycle_preview.add_argument("--overwrite", action="store_true")
+    cycle_add = ilbm_commands.add_parser("cycle-add", help="Add a CRNG range to a new ILBM.")
+    cycle_add.add_argument("input", type=Path)
+    cycle_add.add_argument("--output", "-o", required=True, type=Path)
+    cycle_add.add_argument("--rate", required=True, type=int)
+    cycle_add.add_argument("--low", required=True, type=int)
+    cycle_add.add_argument("--high", required=True, type=int)
+    cycle_add.add_argument("--active", action=argparse.BooleanOptionalAction, default=True)
+    cycle_add.add_argument("--reverse", action=argparse.BooleanOptionalAction, default=False)
+    cycle_add.add_argument("--overwrite", action="store_true")
+    cycle_set = ilbm_commands.add_parser("cycle-set", help="Edit one CRNG range in a new ILBM.")
+    cycle_set.add_argument("input", type=Path)
+    cycle_set.add_argument("index", type=int)
+    cycle_set.add_argument("--output", "-o", required=True, type=Path)
+    cycle_set.add_argument("--rate", type=int)
+    cycle_set.add_argument("--low", type=int)
+    cycle_set.add_argument("--high", type=int)
+    cycle_set.add_argument("--active", action=argparse.BooleanOptionalAction)
+    cycle_set.add_argument("--reverse", action=argparse.BooleanOptionalAction)
+    cycle_set.add_argument("--overwrite", action="store_true")
+    cycle_remove = ilbm_commands.add_parser(
+        "cycle-remove", help="Remove one CRNG range in a new ILBM."
+    )
+    cycle_remove.add_argument("input", type=Path)
+    cycle_remove.add_argument("index", type=int)
+    cycle_remove.add_argument("--output", "-o", required=True, type=Path)
+    cycle_remove.add_argument("--overwrite", action="store_true")
     return parser
 
 
@@ -544,7 +593,126 @@ def _ilbm_command(args: argparse.Namespace) -> int:
         for message in result.messages:
             print(message)
         return 0
+    if args.ilbm_command == "cycles":
+        document = inspect_ilbm(args.input)
+        _print_cycles(document, as_json=args.json)
+        return 0
+    if args.ilbm_command == "cycle-at":
+        document = inspect_ilbm(args.input)
+        if document.palette is None:
+            raise IlbmPaletteError("ILBM contains no CMAP palette")
+        colors = palette_at(document.palette.colors, document.color_cycles, args.time)
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "time_seconds": float(args.time),
+                        "colors": [list(color) for color in colors],
+                    },
+                    sort_keys=True,
+                )
+            )
+        else:
+            for index, color in enumerate(colors):
+                print(f"{index}: #{color[0]:02X}{color[1]:02X}{color[2]:02X}")
+        return 0
+    if args.ilbm_command == "cycle-preview":
+        if args.output.exists() and not args.overwrite:
+            raise IlbmPaletteError(f"Output already exists: {args.output}")
+        document = inspect_ilbm(args.input)
+        if document.palette is None:
+            raise IlbmPaletteError("ILBM contains no CMAP palette")
+        indexed = decode_indexed_ilbm(document)
+        colors = palette_at(document.palette.colors, document.color_cycles, args.time)
+        image = render_indexed_preview(indexed, colors)
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        image.save(args.output)
+        print(f"Wrote {args.output}; indexed pixels remained unchanged")
+        return 0
+    if args.ilbm_command == "cycle-add":
+        cycle = ColorCycleRange.create(
+            rate=args.rate,
+            low=args.low,
+            high=args.high,
+            active=args.active,
+            reverse=args.reverse,
+        )
+        result = add_ilbm_cycle(args.input, args.output, cycle, overwrite=args.overwrite)
+        print(result.messages[0])
+        return 0
+    if args.ilbm_command == "cycle-set":
+        document = inspect_ilbm(args.input)
+        if not 0 <= args.index < len(document.color_cycles):
+            raise IlbmPaletteError(f"CRNG index out of range: {args.index}")
+        cycle = document.color_cycles[args.index].edited(
+            rate=args.rate,
+            low=args.low,
+            high=args.high,
+            active=args.active,
+            reverse=args.reverse,
+        )
+        result = edit_ilbm_cycle(
+            args.input, args.output, args.index, cycle, overwrite=args.overwrite
+        )
+        print(result.messages[0])
+        return 0
+    if args.ilbm_command == "cycle-remove":
+        result = remove_ilbm_cycle(args.input, args.output, args.index, overwrite=args.overwrite)
+        print(result.messages[0])
+        return 0
     raise IlbmPaletteError(f"Unknown ILBM command: {args.ilbm_command}")
+
+
+def _print_cycles(document: IlbmDocument, *, as_json: bool) -> None:
+    palette_size = len(document.palette.colors) if document.palette is not None else 0
+    issues = validate_cycles(document.color_cycles, palette_size)
+    unsupported = [
+        chunk.id.decode("ascii", "replace")
+        for chunk in document.chunks
+        if chunk.id in {b"DRNG", b"BRNG"}
+    ]
+    payload = {
+        "cycles": [
+            {
+                "index": index,
+                "active": cycle.enabled,
+                "reverse": cycle.reversed,
+                "rate": cycle.rate,
+                "steps_per_second": cycle.steps_per_second,
+                "seconds_per_step": cycle.seconds_per_step,
+                "low": cycle.low,
+                "high": cycle.high,
+                "length": cycle.range_length,
+                "reserved": cycle.reserved,
+                "flags": cycle.flags,
+            }
+            for index, cycle in enumerate(document.color_cycles)
+        ],
+        "issues": [
+            {
+                "code": issue.code.value,
+                "severity": issue.severity.value,
+                "message": issue.message,
+                "range_indexes": list(issue.range_indexes),
+            }
+            for issue in issues
+        ],
+        "unsupported_cycle_chunks": unsupported,
+    }
+    if as_json:
+        print(json.dumps(payload, sort_keys=True))
+        return
+    for index, cycle in enumerate(document.color_cycles):
+        print(
+            f"{index}: indexes {cycle.low}..{cycle.high}, "
+            f"rate={cycle.rate}, {cycle.steps_per_second:.6g} steps/s, "
+            f"{'active' if cycle.enabled else 'inactive'}, "
+            f"{'reverse' if cycle.reversed else 'forward'}"
+        )
+    for issue in issues:
+        print(f"{issue.severity.value.upper()} [{issue.code.value}] {issue.message}")
+    if unsupported:
+        print("Warning: preserved but not simulated: " + ", ".join(unsupported))
 
 
 def main(argv: Sequence[str] | None = None) -> int:

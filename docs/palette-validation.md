@@ -113,5 +113,6 @@ confirmation for reported metadata losses.
 Automatic palette reduction is not implemented. Hardware validation covers
 only constraints explicitly represented by the target definitions. Indexed
 image and ILBM document metadata must be supplied as source-context issues
-after extraction. Brilliance export, M2.5 colour-cycle editing, Delta E, and
-general rendering emulation remain outside this milestone.
+after extraction. Brilliance export, Delta E, and general rendering emulation
+remain outside this milestone. CRNG's separate document workflow is documented
+in [`amiga-colour-cycling.md`](amiga-colour-cycling.md).

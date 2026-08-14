@@ -97,6 +97,7 @@ class CustomPaletteDialog(QDialog):
             ("Import…", self._import_palette),
             ("Import Image…", self._import_indexed_image),
             ("Import ILBM…", self._import_ilbm),
+            ("Cycle ILBM…", self._cycle_ilbm),
             ("Validate…", self._validate_palette),
             ("Export…", self._export_palette),
             ("Update ILBM…", self._update_ilbm),
@@ -470,6 +471,21 @@ class CustomPaletteDialog(QDialog):
             QMessageBox.critical(self, "Could not update ILBM", str(exc))
             return
         QMessageBox.information(self, "ILBM updated", "\n".join(result.messages))
+
+    def _cycle_ilbm(self) -> None:
+        filename, _ = QFileDialog.getOpenFileName(
+            self, "Open ILBM colour cycling", "", "Amiga ILBM (*.iff *.ilbm *.lbm)"
+        )
+        if not filename:
+            return
+        try:
+            from retropal.gui.amiga_cycle_dialog import AmigaCycleDialog
+
+            dialog = AmigaCycleDialog(Path(filename), self)
+        except (OSError, IlbmPaletteError) as exc:
+            QMessageBox.critical(self, "Could not open colour cycling", str(exc))
+            return
+        dialog.exec()
 
     def _show_report(self, title: str, messages: tuple[str, ...]) -> None:
         if messages:

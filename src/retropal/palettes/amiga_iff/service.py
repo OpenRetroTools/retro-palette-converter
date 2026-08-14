@@ -5,11 +5,13 @@ from __future__ import annotations
 from pathlib import Path
 
 from retropal.palettes.amiga_iff.base import (
+    ColorCycleRange,
     IlbmDocument,
     IlbmImportResult,
     IlbmPaletteError,
     IlbmWriteResult,
 )
+from retropal.palettes.amiga_iff.cycling import CycleIssueSeverity, validate_cycles
 from retropal.palettes.amiga_iff.parser import load_ilbm_document, serialize_ilbm
 from retropal.palettes.custom import CustomPalette
 from retropal.palettes.interchange.service import palette_id_from_path
@@ -68,4 +70,65 @@ def replace_ilbm_palette(
     return IlbmWriteResult(
         data,
         (f"CMAP was {action}; all other chunk payloads and ordering were preserved.",),
+    )
+
+
+def write_cycle_document(
+    document: IlbmDocument,
+    output: Path,
+    *,
+    overwrite: bool = False,
+) -> IlbmWriteResult:
+    if output.exists() and not overwrite:
+        raise IlbmPaletteError(f"Output already exists: {output}")
+    palette_size = len(document.palette.colors) if document.palette is not None else 0
+    issues = validate_cycles(document.color_cycles, palette_size)
+    blocking = tuple(issue for issue in issues if issue.severity is CycleIssueSeverity.BLOCKING)
+    if blocking:
+        raise IlbmPaletteError("; ".join(issue.message for issue in blocking))
+    data = serialize_ilbm(document)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_bytes(data)
+    return IlbmWriteResult(
+        data,
+        ("CRNG changes written; CMAP, BODY, unknown chunks, and ordering were preserved.",),
+    )
+
+
+def edit_ilbm_cycle(
+    source: Path,
+    output: Path,
+    cycle_index: int,
+    cycle: ColorCycleRange,
+    *,
+    overwrite: bool = False,
+) -> IlbmWriteResult:
+    return write_cycle_document(
+        inspect_ilbm(source).with_cycle_replaced(cycle_index, cycle),
+        output,
+        overwrite=overwrite,
+    )
+
+
+def add_ilbm_cycle(
+    source: Path,
+    output: Path,
+    cycle: ColorCycleRange,
+    *,
+    overwrite: bool = False,
+) -> IlbmWriteResult:
+    return write_cycle_document(
+        inspect_ilbm(source).with_cycle_added(cycle), output, overwrite=overwrite
+    )
+
+
+def remove_ilbm_cycle(
+    source: Path,
+    output: Path,
+    cycle_index: int,
+    *,
+    overwrite: bool = False,
+) -> IlbmWriteResult:
+    return write_cycle_document(
+        inspect_ilbm(source).with_cycle_removed(cycle_index), output, overwrite=overwrite
     )

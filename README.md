@@ -21,6 +21,7 @@ hardware-inspired retro palettes.
 - Amiga IFF/ILBM CMAP import/update with CRNG and unknown-chunk preservation
 - verified import of Brilliance 1.0/2.0 palette documents (export remains unsupported)
 - typed palette analysis, conversion planning, conservative execution, and hardware validation
+- deterministic Amiga CRNG editing, palette cycling, and indexed ILBM preview
 
 ## Development installation
 
@@ -76,6 +77,8 @@ uv run retropal custom-palettes convert my-palette --target-format gpl \
 uv run retropal custom-palettes import-image indexed-art.png
 uv run retropal custom-palettes import-ilbm amiga-picture.iff
 uv run retropal ilbm inspect amiga-picture.iff
+uv run retropal ilbm cycles amiga-picture.iff --json
+uv run retropal ilbm cycle-at amiga-picture.iff --time 1/60 --json
 uv run retropal custom-palettes export my-palette --format riff-pal \
   --output palette.pal
 uv run retropal convert input.png \
@@ -160,8 +163,11 @@ is not advertised or generated.
 
 ### M2.5 — Amiga Colour Cycling
 
-- Build on M2.4d's `CRNG` parsing/preservation with range, direction, and speed
-  editing; animated preview; and explicit colour-cycle authoring workflows.
+- [x] **M2.5 Amiga CRNG Colour Cycling** — historically grounded range editing,
+  deterministic palette-state simulation, indexed ILBM/ByteRun1 preview,
+  preservation-safe save-as, CLI tools, and a focused GUI editor.
+- Brilliance `DRNG`/`BRNG` remain preservation/research backlog items and are
+  neither edited nor simulated. M2.4e Brilliance export remains evidence-gated.
 
 ### M2.6 — Palette Analysis
 
