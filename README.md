@@ -19,6 +19,7 @@ hardware-inspired retro palettes.
 - GPL, JASC-PAL, RIFF PAL, ACT, JSON, and CSV custom-palette interchange
 - stored-palette extraction from indexed PNG, GIF, and BMP images
 - Amiga IFF/ILBM CMAP import/update with CRNG and unknown-chunk preservation
+- verified import of Brilliance 1.0/2.0 palette documents (export remains unsupported)
 
 ## Development installation
 
@@ -65,6 +66,7 @@ uv run retropal custom-palettes create my-palette "My Palette" \
   '#000000' '#FFFFFF' '#000000'
 uv run retropal custom-palettes show my-palette
 uv run retropal custom-palettes import palette.gpl
+uv run retropal custom-palettes import palette.plt --format brilliance-plt
 uv run retropal custom-palettes import-image indexed-art.png
 uv run retropal custom-palettes import-ilbm amiga-picture.iff
 uv run retropal ilbm inspect amiga-picture.iff
@@ -138,8 +140,10 @@ before formats and round trips have been validated.
   transparency metadata from indexed PNG, GIF, and BMP images.
 - [x] **M2.4d Amiga Palette Interchange** — import and export IFF/ILBM `CMAP` and
   Amiga `CRNG` metadata.
-- **M2.4e Brilliance PLT Compatibility** — add Brilliance PLT import and export
-  after the format and round-trip behaviour have been validated.
+- **M2.4e Brilliance PLT Compatibility — partial** — verified import of the
+  historically evidenced Brilliance 1.0/2.0 `FORM ILBM` palette variant.
+  Export remains blocked on credible gradient/range serialization evidence and
+  independent compatibility validation; see `docs/brilliance-plt.md`.
 - **M2.4f Palette Conversion and Validation** — convert supported formats;
   validate colour counts, channel precision, duplicates, metadata, and target
   platform limits; and report lossy conversions.

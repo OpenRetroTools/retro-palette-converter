@@ -63,4 +63,6 @@ any other custom palette.
 
 IFF/ILBM and CMAP/CRNG are handled by the separate metadata-preserving workflow
 in [`amiga-palette-interchange.md`](amiga-palette-interchange.md). Brilliance
-PLT (M2.4e) and general palette conversion/validation (M2.4f) remain planned.
+PLT import is documented in [`brilliance-plt.md`](brilliance-plt.md); its
+unverified export contract and general palette conversion/validation (M2.4f)
+remain planned.

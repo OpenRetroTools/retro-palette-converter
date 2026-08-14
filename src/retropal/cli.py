@@ -160,7 +160,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     interchange_import.add_argument("file", type=Path)
     interchange_import.add_argument(
-        "--format", choices=tuple(codec.info.id for codec in iter_codecs())
+        "--format", choices=tuple(codec.info.id for codec in iter_codecs() if codec.info.can_import)
     )
     image_import = custom_commands.add_parser(
         "import-image", help="Extract the stored palette from an indexed PNG, GIF, or BMP."
@@ -180,7 +180,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     interchange_export.add_argument("id")
     interchange_export.add_argument(
-        "--format", required=True, choices=tuple(codec.info.id for codec in iter_codecs())
+        "--format",
+        required=True,
+        choices=tuple(codec.info.id for codec in iter_codecs() if codec.info.can_export),
     )
     interchange_export.add_argument("--output", "-o", required=True, type=Path)
     interchange_export.add_argument("--overwrite", action="store_true")

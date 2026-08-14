@@ -277,8 +277,12 @@ def test_registry_declares_format_capabilities() -> None:
         "act": {"colors"},
         "json": {"id", "name", "colors", "description", "source"},
         "csv": {"colors"},
+        "brilliance-plt": {"colors"},
     }
-    assert all(codec.info.can_import and codec.info.can_export for codec in iter_codecs())
+    assert all(codec.info.can_import for codec in iter_codecs())
+    assert {codec.info.id for codec in iter_codecs() if not codec.info.can_export} == {
+        "brilliance-plt"
+    }
 
 
 def test_filesystem_service_import_export_reports_loss_and_refuses_overwrite(

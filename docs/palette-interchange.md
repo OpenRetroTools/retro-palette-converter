@@ -15,6 +15,7 @@ RGB entries remain in their original order.
 | `act` | Adobe Color Table | `.act` | 768-byte table and 772-byte table/count trailer | colours |
 | `json` | RetroPal JSON interchange | `.json` | schema version 1 | ID, name, colours, description, source |
 | `csv` | CSV palette | `.csv` | UTF-8 `index,r,g,b` rows | colours |
+| `brilliance-plt` | Brilliance palette | `.plt` | verified Brilliance 1.0/2.0 `FORM ILBM` variant; import only | first 256 register colours |
 
 All formats preserve RGB values, order, and duplicates within their supported
 colour-count limits. Export reports identify every populated `CustomPalette`
@@ -87,11 +88,13 @@ existing files unless `--overwrite` is supplied. Both commands print a
 lossless result or explicit metadata warnings.
 
 The GUI exposes the same registry through **Import…** and **Export…** in the
-custom palette dialog and displays metadata-loss reports.
+custom palette dialog and displays metadata-loss reports. Capability flags are
+respected: import-only codecs are not offered for export.
 
 Indexed-image extraction is documented in
 [`indexed-image-palettes.md`](indexed-image-palettes.md). IFF/ILBM
 `CMAP`/`CRNG` uses a separate container-preserving layer documented in
 [`amiga-palette-interchange.md`](amiga-palette-interchange.md), rather than a
-standard palette codec. Brilliance PLT and the broad M2.4f
-conversion/validation engine remain planned.
+standard palette codec. Conservative Brilliance import is documented in
+[`brilliance-plt.md`](brilliance-plt.md); its export contract and the broad
+M2.4f conversion/validation engine remain planned.

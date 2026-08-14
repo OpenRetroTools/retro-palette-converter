@@ -90,5 +90,5 @@ Import displays CRNG summaries and native-persistence limitations. Update uses
 the currently selected custom palette as CMAP and writes a separate ILBM while
 preserving other chunks.
 
-Brilliance PLT (M2.4e), general palette conversion/validation (M2.4f), and the
+Brilliance PLT export, general palette conversion/validation (M2.4f), and the
 M2.5 colour-cycle preview/editor remain deliberately deferred.

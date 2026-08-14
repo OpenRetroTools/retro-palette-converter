@@ -254,10 +254,14 @@ class CustomPaletteDialog(QDialog):
         self._refresh_palettes()
 
     @staticmethod
-    def _codec_filters() -> tuple[str, dict[str, str]]:
+    def _codec_filters(*, for_export: bool = False) -> tuple[str, dict[str, str]]:
         mapping: dict[str, str] = {}
         filters: list[str] = []
         for codec in iter_codecs():
+            if for_export and not codec.info.can_export:
+                continue
+            if not for_export and not codec.info.can_import:
+                continue
             patterns = " ".join(f"*{extension}" for extension in codec.info.extensions)
             label = f"{codec.info.name} ({patterns})"
             filters.append(label)
@@ -285,7 +289,7 @@ class CustomPaletteDialog(QDialog):
         palette = self._current()
         if palette is None:
             return
-        filters, mapping = self._codec_filters()
+        filters, mapping = self._codec_filters(for_export=True)
         filename, selected_filter = QFileDialog.getSaveFileName(
             self, "Export palette", palette.id, filters
         )

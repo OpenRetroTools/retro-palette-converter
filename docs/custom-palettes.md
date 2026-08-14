@@ -63,8 +63,10 @@ to the same Qt-independent immutable model and store used by the CLI.
 Standard GPL, JASC-PAL, RIFF PAL, ACT, JSON, and CSV interchange is documented
 in [`palette-interchange.md`](palette-interchange.md). Stored-palette extraction
 from indexed PNG, GIF, and BMP is documented in
-[`indexed-image-palettes.md`](indexed-image-palettes.md). Brilliance PLT and
-broad cross-format validation remain M2.4e–f work.
+[`indexed-image-palettes.md`](indexed-image-palettes.md). Brilliance's verified
+import-only boundary is documented in
+[`brilliance-plt.md`](brilliance-plt.md); export and broad cross-format
+validation remain future work.
 
 Amiga IFF/ILBM CMAP workflows and their separate container/CRNG state are
 documented in

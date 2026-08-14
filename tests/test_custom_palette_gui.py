@@ -73,7 +73,19 @@ def test_custom_palette_dialog_uses_registry_for_interchange_filters(
     assert "GIMP GPL (*.gpl)" in filters
     assert "JASC-PAL (*.pal)" in filters
     assert "Microsoft RIFF PAL (*.pal)" in filters
-    assert set(mapping.values()) == {"gpl", "jasc", "riff-pal", "act", "json", "csv"}
+    assert "Brilliance palette (verified ILBM variant) (*.plt)" in filters
+    assert set(mapping.values()) == {
+        "gpl",
+        "jasc",
+        "riff-pal",
+        "act",
+        "json",
+        "csv",
+        "brilliance-plt",
+    }
+    export_filters, export_mapping = dialog._codec_filters(for_export=True)
+    assert "Brilliance" not in export_filters
+    assert "brilliance-plt" not in export_mapping.values()
 
 
 def test_custom_palette_dialog_exports_and_imports_through_shared_codecs(

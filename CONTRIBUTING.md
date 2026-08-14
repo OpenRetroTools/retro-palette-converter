@@ -31,3 +31,8 @@ Amiga container rules and preservation guarantees are documented in
 [`docs/amiga-palette-interchange.md`](docs/amiga-palette-interchange.md).
 ILBM changes must preserve ordered non-CMAP chunks and keep CRNG/raw document
 state outside the generic custom-palette model.
+Brilliance evidence, supported structure, and the intentionally import-only
+compatibility boundary are documented in
+[`docs/brilliance-plt.md`](docs/brilliance-plt.md). Do not extend the writer or
+accepted structure without primary documentation or independently validated
+historical samples.
