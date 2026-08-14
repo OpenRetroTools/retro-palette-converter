@@ -191,3 +191,73 @@ def test_custom_palette_cli_reports_invalid_native_file(
         main(["custom-palettes", "--store", str(tmp_path / "store"), "load", str(malformed)])
     assert exc_info.value.code == 2
     assert "Malformed native palette JSON" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    ("format_id", "suffix"),
+    [("gpl", ".gpl"), ("riff-pal", ".pal"), ("json", ".json")],
+)
+def test_custom_palette_cli_interchange_import_export(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    format_id: str,
+    suffix: str,
+) -> None:
+    source_store = tmp_path / "source-store"
+    source_common = ["custom-palettes", "--store", str(source_store)]
+    assert (
+        main(
+            [
+                *source_common,
+                "create",
+                "interchange-demo",
+                "Interchange Demo",
+                "#010203",
+                "#FF0080",
+                "#010203",
+                "--description",
+                "CLI fixture",
+            ]
+        )
+        == 0
+    )
+    exported = tmp_path / f"exported{suffix}"
+    assert (
+        main(
+            [
+                *source_common,
+                "export",
+                "interchange-demo",
+                "--format",
+                format_id,
+                "--output",
+                str(exported),
+            ]
+        )
+        == 0
+    )
+    assert exported.exists()
+    export_output = capsys.readouterr().out
+    assert "Interchange report:" in export_output
+    if format_id == "json":
+        assert "lossless" in export_output
+    else:
+        assert "Warning:" in export_output
+
+    target_store = tmp_path / "target-store"
+    assert (
+        main(
+            [
+                "custom-palettes",
+                "--store",
+                str(target_store),
+                "import",
+                str(exported),
+                "--format",
+                format_id,
+            ]
+        )
+        == 0
+    )
+    imported_files = tuple(target_store.glob("*.retropal-palette.json"))
+    assert len(imported_files) == 1

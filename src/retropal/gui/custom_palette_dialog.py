@@ -22,6 +22,16 @@ from PySide6.QtWidgets import (
 )
 
 from retropal.palettes.custom import CustomPalette, CustomPaletteError
+from retropal.palettes.interchange import (
+    PaletteCodecError,
+    iter_codecs,
+)
+from retropal.palettes.interchange import (
+    export_palette as export_interchange_palette,
+)
+from retropal.palettes.interchange import (
+    import_palette as import_interchange_palette,
+)
 from retropal.palettes.native import NATIVE_SUFFIX, NativePaletteError
 from retropal.palettes.store import CustomPaletteStore
 
@@ -70,6 +80,8 @@ class CustomPaletteDialog(QDialog):
             ("Rename…", self._rename_palette),
             ("Open…", self._open_palette),
             ("Save", self._save_palette),
+            ("Import…", self._import_palette),
+            ("Export…", self._export_palette),
             ("Delete", self._delete_palette),
         ):
             button = QPushButton(label)
@@ -231,6 +243,75 @@ class CustomPaletteDialog(QDialog):
             QMessageBox.critical(self, "Could not delete palette", str(exc))
             return
         self._refresh_palettes()
+
+    @staticmethod
+    def _codec_filters() -> tuple[str, dict[str, str]]:
+        mapping: dict[str, str] = {}
+        filters: list[str] = []
+        for codec in iter_codecs():
+            patterns = " ".join(f"*{extension}" for extension in codec.info.extensions)
+            label = f"{codec.info.name} ({patterns})"
+            filters.append(label)
+            mapping[label] = codec.info.id
+        return ";;".join(filters), mapping
+
+    def _import_palette(self) -> None:
+        filters, mapping = self._codec_filters()
+        filename, selected_filter = QFileDialog.getOpenFileName(self, "Import palette", "", filters)
+        if not filename:
+            return
+        try:
+            result = import_interchange_palette(
+                Path(filename), format_id=mapping.get(selected_filter)
+            )
+            palette = self._store.add(result.palette)
+            self._store.save(palette.id)
+        except (OSError, CustomPaletteError, PaletteCodecError) as exc:
+            QMessageBox.critical(self, "Could not import palette", str(exc))
+            return
+        self._refresh_palettes(palette.id)
+        self._show_report("Palette imported", result.report.messages)
+
+    def _export_palette(self) -> None:
+        palette = self._current()
+        if palette is None:
+            return
+        filters, mapping = self._codec_filters()
+        filename, selected_filter = QFileDialog.getSaveFileName(
+            self, "Export palette", palette.id, filters
+        )
+        if not filename:
+            return
+        codec_id = mapping.get(selected_filter)
+        if codec_id is None:
+            QMessageBox.critical(self, "Could not export palette", "Select an export format")
+            return
+        codec = next(codec for codec in iter_codecs() if codec.info.id == codec_id)
+        output = Path(filename)
+        if output.suffix.lower() not in codec.info.extensions:
+            output = output.with_suffix(codec.info.extensions[0])
+        if output.exists():
+            answer = QMessageBox.question(
+                self,
+                "Overwrite palette?",
+                f"{output.name} already exists. Overwrite it?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+        try:
+            result = export_interchange_palette(palette, output, format_id=codec_id, overwrite=True)
+        except (OSError, PaletteCodecError) as exc:
+            QMessageBox.critical(self, "Could not export palette", str(exc))
+            return
+        self._show_report(f"Exported {output.name}", result.report.messages)
+
+    def _show_report(self, title: str, messages: tuple[str, ...]) -> None:
+        if messages:
+            QMessageBox.warning(self, title, "Metadata limitations:\n• " + "\n• ".join(messages))
+        else:
+            QMessageBox.information(self, title, "Interchange was lossless.")
 
     def _accept_selected(self) -> None:
         palette = self._current()

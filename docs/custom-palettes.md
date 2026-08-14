@@ -60,5 +60,7 @@ add/edit/remove colours, move entries up or down, save or reopen native files,
 delete palettes, and select a custom palette for conversion. Editing delegates
 to the same Qt-independent immutable model and store used by the CLI.
 
-Standard interchange, indexed-image extraction, Amiga IFF/ILBM metadata,
-Brilliance PLT, and cross-format validation remain M2.4b–f work.
+Standard GPL, JASC-PAL, RIFF PAL, ACT, JSON, and CSV interchange is documented
+in [`palette-interchange.md`](palette-interchange.md). Indexed-image extraction,
+Amiga IFF/ILBM metadata, Brilliance PLT, and broad cross-format validation
+remain M2.4c–f work.

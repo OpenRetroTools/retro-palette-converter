@@ -16,6 +16,7 @@ hardware-inspired retro palettes.
 - Visual dithering comparison with click-to-select previews
 - Lightweight CLI without Qt
 - Ordered custom palettes with native save/load and a compact GUI editor
+- GPL, JASC-PAL, RIFF PAL, ACT, JSON, and CSV custom-palette interchange
 
 ## Development installation
 
@@ -61,6 +62,9 @@ uv run retropal convert input.png --palette amiga-ocs-32 \
 uv run retropal custom-palettes create my-palette "My Palette" \
   '#000000' '#FFFFFF' '#000000'
 uv run retropal custom-palettes show my-palette
+uv run retropal custom-palettes import palette.gpl
+uv run retropal custom-palettes export my-palette --format riff-pal \
+  --output palette.pal
 uv run retropal convert input.png \
   --custom-palette ~/.local/share/retropal/palettes/my-palette.retropal-palette.json \
   --output output.png
@@ -122,7 +126,7 @@ before formats and round trips have been validated.
 
 - [x] **M2.4a Custom Palette Core** — create, edit, name, reorder, save, and load
   user palettes through shared GUI and CLI services.
-- **M2.4b Standard Palette Formats** — import and export GIMP GPL, JASC-PAL,
+- [x] **M2.4b Standard Palette Formats** — import and export GIMP GPL, JASC-PAL,
   RIFF PAL, Adobe ACT, JSON, and CSV while preserving colour order and supported
   metadata.
 - **M2.4c Indexed Image Palette Import** — extract palettes and available

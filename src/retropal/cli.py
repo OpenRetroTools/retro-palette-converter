@@ -15,6 +15,12 @@ from retropal.core.models import DitherMode
 from retropal.palettes import PALETTE_IDS, iter_palette_info, list_by_family
 from retropal.palettes.base import RGBColor
 from retropal.palettes.custom import CustomPaletteError
+from retropal.palettes.interchange import (
+    PaletteCodecError,
+    export_palette,
+    import_palette,
+    iter_codecs,
+)
 from retropal.palettes.native import NativePaletteError, load_native_palette
 from retropal.palettes.store import CustomPaletteStore, default_custom_palette_directory
 
@@ -141,6 +147,22 @@ def build_parser() -> argparse.ArgumentParser:
     delete.add_argument("id")
     load = custom_commands.add_parser("load", help="Load a native file into the store.")
     load.add_argument("file", type=Path)
+    interchange_import = custom_commands.add_parser(
+        "import", help="Import an external palette into the native store."
+    )
+    interchange_import.add_argument("file", type=Path)
+    interchange_import.add_argument(
+        "--format", choices=tuple(codec.info.id for codec in iter_codecs())
+    )
+    interchange_export = custom_commands.add_parser(
+        "export", help="Export a custom palette to an interchange format."
+    )
+    interchange_export.add_argument("id")
+    interchange_export.add_argument(
+        "--format", required=True, choices=tuple(codec.info.id for codec in iter_codecs())
+    )
+    interchange_export.add_argument("--output", "-o", required=True, type=Path)
+    interchange_export.add_argument("--overwrite", action="store_true")
     return parser
 
 
@@ -156,6 +178,24 @@ def _custom_palette_command(args: argparse.Namespace) -> int:
         palette = store.load(args.file)
         path = store.save(palette.id)
         print(f"Loaded custom palette {palette.id} into {path}")
+        return 0
+    if command == "import":
+        result = import_palette(args.file, format_id=args.format)
+        palette = store.add(result.palette)
+        path = store.save(palette.id)
+        print(f"Imported {palette.id} as custom palette into {path}")
+        _print_interchange_report(result.report.messages)
+        return 0
+    if command == "export":
+        palette = store.get(args.id)
+        result = export_palette(
+            palette,
+            args.output,
+            format_id=args.format,
+            overwrite=args.overwrite,
+        )
+        print(f"Exported custom palette {palette.id} to {args.output}")
+        _print_interchange_report(result.report.messages)
         return 0
     if command == "show":
         palette = store.get(args.id)
@@ -197,6 +237,15 @@ def _custom_palette_command(args: argparse.Namespace) -> int:
     path = store.save(palette.id)
     print(f"Saved custom palette {palette.id} to {path}")
     return 0
+
+
+def _print_interchange_report(messages: tuple[str, ...]) -> None:
+    if not messages:
+        print("Interchange report: lossless")
+        return
+    print("Interchange report:")
+    for message in messages:
+        print(f"  Warning: {message}")
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -271,7 +320,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "custom-palettes":
         try:
             return _custom_palette_command(args)
-        except (OSError, CustomPaletteError, NativePaletteError) as exc:
+        except (OSError, CustomPaletteError, NativePaletteError, PaletteCodecError) as exc:
             parser.error(str(exc))
     parser.error(f"Unknown command: {args.command}")
     return 2

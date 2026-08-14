@@ -59,3 +59,59 @@ def test_main_window_selects_custom_palette_for_conversion(
     assert {pixel[:3] for pixel in window._controller.converted_image.get_flattened_data()} <= set(
         colors
     )
+
+
+def test_custom_palette_dialog_uses_registry_for_interchange_filters(
+    qt_app: QApplication,
+    tmp_path: Path,
+) -> None:
+    dialog = CustomPaletteDialog(CustomPaletteStore(tmp_path))
+    filters, mapping = dialog._codec_filters()
+
+    assert "GIMP GPL (*.gpl)" in filters
+    assert "JASC-PAL (*.pal)" in filters
+    assert "Microsoft RIFF PAL (*.pal)" in filters
+    assert set(mapping.values()) == {"gpl", "jasc", "riff-pal", "act", "json", "csv"}
+
+
+def test_custom_palette_dialog_exports_and_imports_through_shared_codecs(
+    qt_app: QApplication,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+    source_store = CustomPaletteStore(tmp_path / "source")
+    colors = ((1, 2, 3), (255, 0, 128), (1, 2, 3))
+    source_store.create("gui-interchange", "GUI Interchange", colors)
+    source_dialog = CustomPaletteDialog(source_store)
+    output = tmp_path / "gui-export.gpl"
+    selected_filter = "GIMP GPL (*.gpl)"
+    messages: list[str] = []
+    monkeypatch.setattr(
+        QFileDialog,
+        "getSaveFileName",
+        lambda *args, **kwargs: (str(output), selected_filter),
+    )
+    monkeypatch.setattr(
+        QMessageBox,
+        "warning",
+        lambda _parent, _title, message: messages.append(message),
+    )
+    monkeypatch.setattr(QMessageBox, "information", lambda *args, **kwargs: None)
+
+    source_dialog._export_palette()
+
+    assert output.exists()
+    assert messages and "stable palette ID" in messages[0]
+
+    target_store = CustomPaletteStore(tmp_path / "target")
+    target_dialog = CustomPaletteDialog(target_store)
+    monkeypatch.setattr(
+        QFileDialog,
+        "getOpenFileName",
+        lambda *args, **kwargs: (str(output), selected_filter),
+    )
+    target_dialog._import_palette()
+
+    assert target_store.list()[0].colors == colors

@@ -20,3 +20,6 @@ Custom palette architecture is documented in
 [`docs/custom-palettes.md`](docs/custom-palettes.md). Keep the immutable,
 format-independent model separate from native persistence, future interchange
 adapters, Qt widgets, and the repository-owned built-in palette registry.
+Standard codec capabilities and binary-format references are documented in
+[`docs/palette-interchange.md`](docs/palette-interchange.md). Each codec must
+continue to map directly to `CustomPalette` and report metadata loss explicitly.
