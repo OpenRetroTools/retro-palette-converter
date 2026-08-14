@@ -8,6 +8,8 @@ from PIL import Image
 from retropal import __version__
 from retropal.cli import build_parser, main
 from retropal.core.dither import DITHER_IDS
+from retropal.palettes.native import load_native_palette
+from tests.indexed_image_fixtures import indexed_bmp, indexed_gif, indexed_png
 
 
 def test_cli_without_arguments_prints_help(capsys: pytest.CaptureFixture[str]) -> None:
@@ -261,3 +263,43 @@ def test_custom_palette_cli_interchange_import_export(
     )
     imported_files = tuple(target_store.glob("*.retropal-palette.json"))
     assert len(imported_files) == 1
+
+
+@pytest.mark.parametrize(
+    ("suffix", "data", "format_name"),
+    [
+        (".png", indexed_png(((0, 0, 0), (255, 0, 0), (0, 0, 0))), "PNG"),
+        (".gif", indexed_gif(((0, 0, 0), (255, 0, 0))), "GIF"),
+        (".bmp", indexed_bmp(8, ((0, 0, 0), (255, 0, 0)), (1,)), "BMP"),
+    ],
+)
+def test_custom_palette_cli_imports_indexed_images(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    suffix: str,
+    data: bytes,
+    format_name: str,
+) -> None:
+    image = tmp_path / f"CLI Image{suffix}"
+    image.write_bytes(data)
+    store = tmp_path / "store"
+    assert (
+        main(
+            [
+                "custom-palettes",
+                "--store",
+                str(store),
+                "import-image",
+                str(image),
+                "--id",
+                f"cli-{format_name.casefold()}",
+                "--name",
+                f"CLI {format_name}",
+            ]
+        )
+        == 0
+    )
+    saved = next(store.glob("*.retropal-palette.json"))
+    palette = load_native_palette(saved)
+    assert palette.colors[0] == (0, 0, 0)
+    assert f"stored {format_name} entries" in capsys.readouterr().out

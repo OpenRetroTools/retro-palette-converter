@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QApplication
 from retropal.gui.custom_palette_dialog import CustomPaletteDialog
 from retropal.gui.main_window import MainWindow
 from retropal.palettes.store import CustomPaletteStore
+from tests.indexed_image_fixtures import indexed_png
 
 
 @pytest.fixture(scope="module")
@@ -115,3 +116,29 @@ def test_custom_palette_dialog_exports_and_imports_through_shared_codecs(
     target_dialog._import_palette()
 
     assert target_store.list()[0].colors == colors
+
+
+def test_custom_palette_dialog_imports_indexed_image_with_report(
+    qt_app: QApplication,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from PySide6.QtWidgets import QFileDialog, QMessageBox
+
+    image = tmp_path / "gui-indexed.png"
+    colors = ((0, 0, 0), (255, 0, 0), (0, 0, 0))
+    image.write_bytes(indexed_png(colors, transparency=b"\x00"))
+    store = CustomPaletteStore(tmp_path / "store")
+    dialog = CustomPaletteDialog(store)
+    reports: list[str] = []
+    monkeypatch.setattr(QFileDialog, "getOpenFileName", lambda *args, **kwargs: (str(image), ""))
+    monkeypatch.setattr(
+        QMessageBox, "warning", lambda _parent, _title, message: reports.append(message)
+    )
+
+    dialog._import_indexed_image()
+
+    assert store.list()[0].colors == colors
+    assert store.path_for("gui-indexed").exists()
+    assert reports and "all 3 stored entries" in reports[0]
+    assert "Non-opaque indexes: 0" in reports[0]

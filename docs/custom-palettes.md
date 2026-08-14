@@ -61,6 +61,8 @@ delete palettes, and select a custom palette for conversion. Editing delegates
 to the same Qt-independent immutable model and store used by the CLI.
 
 Standard GPL, JASC-PAL, RIFF PAL, ACT, JSON, and CSV interchange is documented
-in [`palette-interchange.md`](palette-interchange.md). Indexed-image extraction,
-Amiga IFF/ILBM metadata, Brilliance PLT, and broad cross-format validation
-remain M2.4c–f work.
+in [`palette-interchange.md`](palette-interchange.md). Stored-palette extraction
+from indexed PNG, GIF, and BMP is documented in
+[`indexed-image-palettes.md`](indexed-image-palettes.md). Amiga IFF/ILBM
+metadata, Brilliance PLT, and broad cross-format validation remain M2.4d–f
+work.

@@ -15,6 +15,7 @@ from retropal.core.models import DitherMode
 from retropal.palettes import PALETTE_IDS, iter_palette_info, list_by_family
 from retropal.palettes.base import RGBColor
 from retropal.palettes.custom import CustomPaletteError
+from retropal.palettes.indexed import INDEXED_IMAGE_FORMATS, extract_indexed_palette
 from retropal.palettes.interchange import (
     PaletteCodecError,
     export_palette,
@@ -154,6 +155,13 @@ def build_parser() -> argparse.ArgumentParser:
     interchange_import.add_argument(
         "--format", choices=tuple(codec.info.id for codec in iter_codecs())
     )
+    image_import = custom_commands.add_parser(
+        "import-image", help="Extract the stored palette from an indexed PNG, GIF, or BMP."
+    )
+    image_import.add_argument("file", type=Path)
+    image_import.add_argument("--format", choices=INDEXED_IMAGE_FORMATS)
+    image_import.add_argument("--id", dest="palette_id")
+    image_import.add_argument("--name")
     interchange_export = custom_commands.add_parser(
         "export", help="Export a custom palette to an interchange format."
     )
@@ -185,6 +193,31 @@ def _custom_palette_command(args: argparse.Namespace) -> int:
         path = store.save(palette.id)
         print(f"Imported {palette.id} as custom palette into {path}")
         _print_interchange_report(result.report.messages)
+        return 0
+    if command == "import-image":
+        result = extract_indexed_palette(
+            args.file,
+            format_id=args.format,
+            palette_id=args.palette_id,
+            name=args.name,
+        )
+        palette = store.add(result.palette)
+        path = store.save(palette.id)
+        print(
+            f"Extracted {result.stored_entry_count} stored {result.source_format.upper()} entries"
+        )
+        print(
+            f"Image: {result.width}x{result.height}; used={len(result.used_indexes)}; "
+            f"unused={len(result.unused_indexes)}"
+        )
+        if result.highest_used_index is not None:
+            print(f"Highest referenced index: {result.highest_used_index}")
+        if result.transparency is not None:
+            indexes = ", ".join(map(str, result.transparency.non_opaque_indexes)) or "none"
+            print(f"Non-opaque palette indexes: {indexes}")
+        for message in result.messages:
+            print(f"Warning: {message}")
+        print(f"Saved custom palette {palette.id} to {path}")
         return 0
     if command == "export":
         palette = store.get(args.id)

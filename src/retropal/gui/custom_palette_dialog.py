@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 )
 
 from retropal.palettes.custom import CustomPalette, CustomPaletteError
+from retropal.palettes.indexed import IndexedPaletteError, extract_indexed_palette
 from retropal.palettes.interchange import (
     PaletteCodecError,
     iter_codecs,
@@ -81,6 +82,7 @@ class CustomPaletteDialog(QDialog):
             ("Open…", self._open_palette),
             ("Save", self._save_palette),
             ("Import…", self._import_palette),
+            ("Import Image…", self._import_indexed_image),
             ("Export…", self._export_palette),
             ("Delete", self._delete_palette),
         ):
@@ -306,6 +308,37 @@ class CustomPaletteDialog(QDialog):
             QMessageBox.critical(self, "Could not export palette", str(exc))
             return
         self._show_report(f"Exported {output.name}", result.report.messages)
+
+    def _import_indexed_image(self) -> None:
+        filename, _ = QFileDialog.getOpenFileName(
+            self,
+            "Import palette from indexed image",
+            "",
+            "Indexed images (*.png *.gif *.bmp)",
+        )
+        if not filename:
+            return
+        try:
+            result = extract_indexed_palette(Path(filename))
+            palette = self._store.add(result.palette)
+            self._store.save(palette.id)
+        except (OSError, CustomPaletteError, IndexedPaletteError) as exc:
+            QMessageBox.critical(self, "Could not import indexed image", str(exc))
+            return
+        self._refresh_palettes(palette.id)
+        details = [
+            f"Extracted all {result.stored_entry_count} stored entries from "
+            f"{result.source_format.upper()} ({result.width}×{result.height}).",
+            f"Used indexes: {len(result.used_indexes)}; unused: {len(result.unused_indexes)}.",
+        ]
+        if result.transparency is not None:
+            indexes = ", ".join(map(str, result.transparency.non_opaque_indexes)) or "none"
+            details.append(f"Non-opaque indexes: {indexes}.")
+        details.extend(result.messages)
+        if result.messages:
+            QMessageBox.warning(self, "Indexed palette imported", "\n".join(details))
+        else:
+            QMessageBox.information(self, "Indexed palette imported", "\n".join(details))
 
     def _show_report(self, title: str, messages: tuple[str, ...]) -> None:
         if messages:
