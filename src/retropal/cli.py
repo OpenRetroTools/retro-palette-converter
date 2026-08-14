@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -29,8 +30,23 @@ from retropal.palettes.interchange import (
     import_palette,
     iter_codecs,
 )
-from retropal.palettes.native import NativePaletteError, load_native_palette
+from retropal.palettes.interchange import (
+    convert_palette as convert_interchange_palette,
+)
+from retropal.palettes.native import NativePaletteError, load_native_palette, save_native_palette
 from retropal.palettes.store import CustomPaletteStore, default_custom_palette_directory
+from retropal.palettes.validation import (
+    ConversionPlan,
+    ExecutionPolicy,
+    PaletteAnalysis,
+    PaletteValidationError,
+    ValidationIssue,
+    analyze_palette,
+    execute_plan,
+    get_hardware_target,
+    plan_format_conversion,
+    plan_hardware_conversion,
+)
 
 
 def _rgb(value: str) -> RGBColor:
@@ -186,6 +202,42 @@ def build_parser() -> argparse.ArgumentParser:
     )
     interchange_export.add_argument("--output", "-o", required=True, type=Path)
     interchange_export.add_argument("--overwrite", action="store_true")
+    analysis = custom_commands.add_parser("analyze", help="Analyze palette statistics and indexes.")
+    analysis.add_argument("id")
+    analysis.add_argument("--json", action="store_true")
+    plan = custom_commands.add_parser("plan", help="Plan conversion to an interchange format.")
+    plan.add_argument("id")
+    plan.add_argument(
+        "--target-format", required=True, choices=tuple(c.info.id for c in iter_codecs())
+    )
+    plan.add_argument("--json", action="store_true")
+    validate = custom_commands.add_parser(
+        "validate", help="Validate against a hardware or fixed palette target."
+    )
+    validate.add_argument("id")
+    validate.add_argument("--target", required=True)
+    validate.add_argument("--json", action="store_true")
+    palette_convert = custom_commands.add_parser(
+        "convert", help="Plan and explicitly execute palette-format conversion."
+    )
+    palette_convert.add_argument("id")
+    palette_convert.add_argument(
+        "--target-format", required=True, choices=tuple(c.info.id for c in iter_codecs())
+    )
+    palette_convert.add_argument("--output", "-o", required=True, type=Path)
+    palette_convert.add_argument("--overwrite", action="store_true")
+    palette_convert.add_argument("--allow-metadata-loss", action="store_true")
+    transform = custom_commands.add_parser(
+        "transform", help="Explicitly transform for a hardware/fixed-palette target."
+    )
+    transform.add_argument("id")
+    transform.add_argument("--target", required=True)
+    transform.add_argument("--output", "-o", required=True, type=Path)
+    transform.add_argument("--overwrite", action="store_true")
+    transform.add_argument("--allow-channel-quantization", action="store_true")
+    transform.add_argument("--allow-fixed-palette-remap", action="store_true")
+    transform.add_argument("--allow-color-reduction", action="store_true")
+    transform.add_argument("--allow-index-changes", action="store_true")
 
     ilbm_parser = commands.add_parser("ilbm", help="Inspect or update Amiga ILBM metadata.")
     ilbm_parser.add_argument(
@@ -208,6 +260,52 @@ def _custom_palette_command(args: argparse.Namespace) -> int:
     store = CustomPaletteStore(args.store)
     store.load_all()
     command = args.custom_command
+    if command == "analyze":
+        analysis = analyze_palette(store.get(args.id))
+        _print_analysis(analysis, as_json=args.json)
+        return 0
+    if command == "plan":
+        plan = plan_format_conversion(store.get(args.id), args.target_format)
+        _print_plan(plan, as_json=args.json)
+        return 1 if plan.blocked else 0
+    if command == "validate":
+        plan = plan_hardware_conversion(store.get(args.id), get_hardware_target(args.target))
+        _print_plan(plan, as_json=args.json)
+        return 1 if plan.blocked else 0
+    if command == "convert":
+        palette = store.get(args.id)
+        plan = plan_format_conversion(palette, args.target_format)
+        _print_plan(plan, as_json=False)
+        result = convert_interchange_palette(
+            palette,
+            args.output,
+            format_id=args.target_format,
+            policy=ExecutionPolicy(allow_metadata_loss=args.allow_metadata_loss),
+            overwrite=args.overwrite,
+            plan=plan,
+        )
+        print(f"Wrote {args.output}")
+        _print_interchange_report(result.report.messages)
+        return 0
+    if command == "transform":
+        if args.output.exists() and not args.overwrite:
+            raise PaletteValidationError(f"Output already exists: {args.output}")
+        palette = store.get(args.id)
+        plan = plan_hardware_conversion(palette, get_hardware_target(args.target))
+        _print_plan(plan, as_json=False)
+        result = execute_plan(
+            palette,
+            plan,
+            ExecutionPolicy(
+                allow_channel_quantization=args.allow_channel_quantization,
+                allow_color_reduction=args.allow_color_reduction,
+                allow_index_changes=args.allow_index_changes,
+                allow_fixed_palette_remap=args.allow_fixed_palette_remap,
+            ),
+        )
+        save_native_palette(result.palette, args.output)
+        print(f"Wrote {args.output}")
+        return 0
     if command == "list":
         for palette in store.list():
             print(f"{palette.id}: {palette.name} ({len(palette.colors)} colours, custom)")
@@ -325,6 +423,98 @@ def _print_interchange_report(messages: tuple[str, ...]) -> None:
         print(f"  Warning: {message}")
 
 
+def _analysis_payload(analysis: PaletteAnalysis) -> dict[str, object]:
+    statistics = analysis.statistics
+    return {
+        "palette_id": analysis.palette_id,
+        "statistics": {
+            "entry_count": statistics.entry_count,
+            "unique_color_count": statistics.unique_color_count,
+            "duplicate_entry_count": statistics.duplicate_entry_count,
+            "duplicate_groups": [
+                {"color": list(group.color), "indexes": list(group.indexes)}
+                for group in statistics.duplicate_groups
+            ],
+            "channel_minima": list(statistics.channel_minima),
+            "channel_maxima": list(statistics.channel_maxima),
+            "luminance_minimum": statistics.luminance_minimum,
+            "luminance_maximum": statistics.luminance_maximum,
+            "fits_4bit_channels": statistics.fits_4bit_channels,
+            "metadata_fields": list(statistics.metadata_fields),
+        },
+        "issues": [_issue_payload(issue) for issue in analysis.issues],
+    }
+
+
+def _issue_payload(issue: ValidationIssue) -> dict[str, object]:
+    return {
+        "code": issue.code.value,
+        "severity": issue.severity.value,
+        "message": issue.message,
+        "affected_indexes": list(issue.affected_indexes),
+        "metadata_fields": list(issue.metadata_fields),
+    }
+
+
+def _plan_payload(plan: ConversionPlan) -> dict[str, object]:
+    return {
+        "source_id": plan.source_id,
+        "source_fingerprint": plan.source_fingerprint,
+        "target_kind": plan.target_kind,
+        "target_id": plan.target_id,
+        "exactness": plan.exactness.value,
+        "export_supported": plan.export_supported,
+        "blocked": plan.blocked,
+        "issues": [_issue_payload(issue) for issue in plan.issues],
+        "transformations": [
+            {
+                "kind": transformation.kind.value,
+                "reason": transformation.reason,
+                "lossy": transformation.lossy,
+                "automatic": transformation.automatic,
+                "metadata_fields": list(transformation.metadata_fields),
+                "color_changes": [
+                    {
+                        "index": change.index,
+                        "before": list(change.before),
+                        "after": list(change.after),
+                    }
+                    for change in transformation.color_changes
+                ],
+            }
+            for transformation in plan.transformations
+        ],
+    }
+
+
+def _print_analysis(analysis: PaletteAnalysis, *, as_json: bool) -> None:
+    if as_json:
+        print(json.dumps(_analysis_payload(analysis), sort_keys=True))
+        return
+    statistics = analysis.statistics
+    print(
+        f"Palette {analysis.palette_id}: {statistics.entry_count} entries, "
+        f"{statistics.unique_color_count} unique"
+    )
+    print(f"Duplicate entries: {statistics.duplicate_entry_count}")
+    print(f"Fits 4-bit/channel: {'yes' if statistics.fits_4bit_channels else 'no'}")
+    for issue in analysis.issues:
+        print(f"{issue.severity.value.upper()} [{issue.code}] {issue.message}")
+
+
+def _print_plan(plan: ConversionPlan, *, as_json: bool) -> None:
+    if as_json:
+        print(json.dumps(_plan_payload(plan), sort_keys=True))
+        return
+    print(f"Plan: {plan.source_id} -> {plan.target_kind}:{plan.target_id}")
+    print(f"Exactness: {plan.exactness.value}")
+    for issue in plan.issues:
+        print(f"{issue.severity.value.upper()} [{issue.code}] {issue.message}")
+    for transformation in plan.transformations:
+        support = "automatic" if transformation.automatic else "analysis-only"
+        print(f"Transform: {transformation.kind.value} ({support}) — {transformation.reason}")
+
+
 def _print_ilbm_document(document: IlbmDocument) -> None:
     print(f"FORM ILBM: {len(document.chunks)} chunks")
     print(
@@ -429,7 +619,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "custom-palettes":
         try:
             return _custom_palette_command(args)
-        except (OSError, CustomPaletteError, NativePaletteError, PaletteCodecError) as exc:
+        except (
+            OSError,
+            CustomPaletteError,
+            NativePaletteError,
+            PaletteCodecError,
+            PaletteValidationError,
+        ) as exc:
             parser.error(str(exc))
     if args.command == "ilbm":
         try:

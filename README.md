@@ -20,6 +20,7 @@ hardware-inspired retro palettes.
 - stored-palette extraction from indexed PNG, GIF, and BMP images
 - Amiga IFF/ILBM CMAP import/update with CRNG and unknown-chunk preservation
 - verified import of Brilliance 1.0/2.0 palette documents (export remains unsupported)
+- typed palette analysis, conversion planning, conservative execution, and hardware validation
 
 ## Development installation
 
@@ -67,6 +68,11 @@ uv run retropal custom-palettes create my-palette "My Palette" \
 uv run retropal custom-palettes show my-palette
 uv run retropal custom-palettes import palette.gpl
 uv run retropal custom-palettes import palette.plt --format brilliance-plt
+uv run retropal custom-palettes analyze my-palette --json
+uv run retropal custom-palettes plan my-palette --target-format gpl
+uv run retropal custom-palettes validate my-palette --target amiga-ocs-32
+uv run retropal custom-palettes convert my-palette --target-format gpl \
+  --output palette.gpl --allow-metadata-loss
 uv run retropal custom-palettes import-image indexed-art.png
 uv run retropal custom-palettes import-ilbm amiga-picture.iff
 uv run retropal ilbm inspect amiga-picture.iff
@@ -144,9 +150,13 @@ before formats and round trips have been validated.
   historically evidenced Brilliance 1.0/2.0 `FORM ILBM` palette variant.
   Export remains blocked on credible gradient/range serialization evidence and
   independent compatibility validation; see `docs/brilliance-plt.md`.
-- **M2.4f Palette Conversion and Validation** — convert supported formats;
-  validate colour counts, channel precision, duplicates, metadata, and target
-  platform limits; and report lossy conversions.
+- [x] **M2.4f Palette Conversion and Validation** — typed statistics, stable
+  validation issues, deterministic conversion plans, conservative explicit
+  execution, format capabilities, and palette-only hardware constraints.
+
+M2.4 core palette interoperability is complete. M2.4e remains explicitly
+partial: Brilliance export is an evidence-gated preservation backlog item and
+is not advertised or generated.
 
 ### M2.5 — Amiga Colour Cycling
 

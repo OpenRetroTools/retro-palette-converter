@@ -21,6 +21,8 @@ class CodecInfo:
     preserves: tuple[str, ...]
     can_import: bool = True
     can_export: bool = True
+    maximum_colors: int | None = None
+    padded_color_count: int | None = None
 
 
 @dataclass(frozen=True, slots=True)

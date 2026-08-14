@@ -33,13 +33,21 @@ from retropal.palettes.interchange import (
     iter_codecs,
 )
 from retropal.palettes.interchange import (
-    export_palette as export_interchange_palette,
+    convert_palette as convert_interchange_palette,
 )
 from retropal.palettes.interchange import (
     import_palette as import_interchange_palette,
 )
 from retropal.palettes.native import NATIVE_SUFFIX, NativePaletteError
 from retropal.palettes.store import CustomPaletteStore
+from retropal.palettes.validation import (
+    ExecutionPolicy,
+    analyze_palette,
+    get_hardware_target,
+    iter_hardware_targets,
+    plan_format_conversion,
+    plan_hardware_conversion,
+)
 
 
 class CustomPaletteDialog(QDialog):
@@ -89,6 +97,7 @@ class CustomPaletteDialog(QDialog):
             ("Import…", self._import_palette),
             ("Import Image…", self._import_indexed_image),
             ("Import ILBM…", self._import_ilbm),
+            ("Validate…", self._validate_palette),
             ("Export…", self._export_palette),
             ("Update ILBM…", self._update_ilbm),
             ("Delete", self._delete_palette),
@@ -313,12 +322,63 @@ class CustomPaletteDialog(QDialog):
             )
             if answer != QMessageBox.StandardButton.Yes:
                 return
+        plan = plan_format_conversion(palette, codec_id)
+        allow_metadata_loss = False
+        if plan.transformations:
+            details = "\n".join(issue.message for issue in plan.issues)
+            answer = QMessageBox.question(
+                self,
+                f"Export is {plan.exactness.value}",
+                details + "\n\nApprove these reported losses?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+            allow_metadata_loss = True
         try:
-            result = export_interchange_palette(palette, output, format_id=codec_id, overwrite=True)
-        except (OSError, PaletteCodecError) as exc:
+            result = convert_interchange_palette(
+                palette,
+                output,
+                format_id=codec_id,
+                policy=ExecutionPolicy(allow_metadata_loss=allow_metadata_loss),
+                overwrite=True,
+                plan=plan,
+            )
+        except (OSError, CustomPaletteError, PaletteCodecError) as exc:
             QMessageBox.critical(self, "Could not export palette", str(exc))
             return
         self._show_report(f"Exported {output.name}", result.report.messages)
+
+    def _validate_palette(self) -> None:
+        palette = self._current()
+        if palette is None:
+            return
+        choices = [f"format:{codec.info.id}" for codec in iter_codecs()]
+        choices.extend(f"hardware:{target.id}" for target in iter_hardware_targets())
+        choice, accepted = QInputDialog.getItem(
+            self, "Validate palette", "Target:", choices, editable=False
+        )
+        if not accepted:
+            return
+        kind, target_id = choice.split(":", 1)
+        plan = (
+            plan_format_conversion(palette, target_id)
+            if kind == "format"
+            else plan_hardware_conversion(palette, get_hardware_target(target_id))
+        )
+        analysis = analyze_palette(palette)
+        lines = [
+            f"Exactness: {plan.exactness.value}",
+            f"Entries: {analysis.statistics.entry_count}; "
+            f"unique: {analysis.statistics.unique_color_count}",
+        ]
+        lines.extend(f"[{issue.code}] {issue.message}" for issue in plan.issues)
+        lines.extend(
+            f"{transformation.kind.value}: {transformation.reason}"
+            for transformation in plan.transformations
+        )
+        QMessageBox.information(self, "Palette validation", "\n".join(lines))
 
     def _import_indexed_image(self) -> None:
         filename, _ = QFileDialog.getOpenFileName(

@@ -97,4 +97,5 @@ Indexed-image extraction is documented in
 [`amiga-palette-interchange.md`](amiga-palette-interchange.md), rather than a
 standard palette codec. Conservative Brilliance import is documented in
 [`brilliance-plt.md`](brilliance-plt.md); its export contract and the broad
-M2.4f conversion/validation engine remain planned.
+preflight conversion/validation layer are documented in
+[`palette-validation.md`](palette-validation.md).

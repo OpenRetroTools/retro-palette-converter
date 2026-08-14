@@ -24,7 +24,14 @@ _VERSION = 0x0300
 
 
 class RiffPalCodec:
-    info = CodecInfo("riff-pal", "Microsoft RIFF PAL", (".pal",), True, ("colors",))
+    info = CodecInfo(
+        "riff-pal",
+        "Microsoft RIFF PAL",
+        (".pal",),
+        True,
+        ("colors",),
+        maximum_colors=65535,
+    )
 
     def sniff(self, data: bytes) -> bool:
         return len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"PAL "

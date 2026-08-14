@@ -8,7 +8,7 @@ from retropal.palettes.interchange.base import (
     PaletteCodecError,
 )
 from retropal.palettes.interchange.registry import get_codec, iter_codecs
-from retropal.palettes.interchange.service import export_palette, import_palette
+from retropal.palettes.interchange.service import convert_palette, export_palette, import_palette
 
 __all__ = [
     "CodecInfo",
@@ -17,6 +17,7 @@ __all__ = [
     "InterchangeReport",
     "PaletteCodecError",
     "export_palette",
+    "convert_palette",
     "get_codec",
     "import_palette",
     "iter_codecs",

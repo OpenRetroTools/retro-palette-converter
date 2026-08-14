@@ -22,7 +22,15 @@ from retropal.palettes.interchange.base import (
 
 
 class ActCodec:
-    info = CodecInfo("act", "Adobe Color Table", (".act",), True, ("colors",))
+    info = CodecInfo(
+        "act",
+        "Adobe Color Table",
+        (".act",),
+        True,
+        ("colors",),
+        maximum_colors=256,
+        padded_color_count=256,
+    )
 
     def sniff(self, data: bytes) -> bool:
         return len(data) in {768, 772}

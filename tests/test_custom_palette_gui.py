@@ -113,6 +113,11 @@ def test_custom_palette_dialog_exports_and_imports_through_shared_codecs(
         lambda _parent, _title, message: messages.append(message),
     )
     monkeypatch.setattr(QMessageBox, "information", lambda *args, **kwargs: None)
+    monkeypatch.setattr(
+        QMessageBox,
+        "question",
+        lambda *args, **kwargs: QMessageBox.StandardButton.Yes,
+    )
 
     source_dialog._export_palette()
 
@@ -129,6 +134,34 @@ def test_custom_palette_dialog_exports_and_imports_through_shared_codecs(
     target_dialog._import_palette()
 
     assert target_store.list()[0].colors == colors
+
+
+def test_custom_palette_dialog_validation_uses_shared_plan(
+    qt_app: QApplication,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from PySide6.QtWidgets import QInputDialog, QMessageBox
+
+    store = CustomPaletteStore(tmp_path)
+    store.create("gui-validation", "GUI Validation", ((18, 52, 86),))
+    dialog = CustomPaletteDialog(store)
+    reports: list[str] = []
+    monkeypatch.setattr(
+        QInputDialog,
+        "getItem",
+        lambda *args, **kwargs: ("hardware:amiga-ocs-16", True),
+    )
+    monkeypatch.setattr(
+        QMessageBox,
+        "information",
+        lambda _parent, _title, message: reports.append(message),
+    )
+
+    dialog._validate_palette()
+
+    assert reports and "Exactness: rgb-loss" in reports[0]
+    assert "channel-precision-loss" in reports[0]
 
 
 def test_custom_palette_dialog_imports_indexed_image_with_report(

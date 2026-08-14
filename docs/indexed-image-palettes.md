@@ -64,5 +64,8 @@ any other custom palette.
 IFF/ILBM and CMAP/CRNG are handled by the separate metadata-preserving workflow
 in [`amiga-palette-interchange.md`](amiga-palette-interchange.md). Brilliance
 PLT import is documented in [`brilliance-plt.md`](brilliance-plt.md); its
-unverified export contract and general palette conversion/validation (M2.4f)
-remain planned.
+unverified export contract remains evidence-gated.
+
+M2.4f plans may carry an `indexed-transparency-not-preserved` source-context
+issue when only the extracted RGB `CustomPalette` continues into another
+workflow. Transparency remains separate and is never silently converted to RGB.

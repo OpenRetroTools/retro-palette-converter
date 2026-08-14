@@ -90,5 +90,9 @@ Import displays CRNG summaries and native-persistence limitations. Update uses
 the currently selected custom palette as CMAP and writes a separate ILBM while
 preserving other chunks.
 
-Brilliance PLT export, general palette conversion/validation (M2.4f), and the
-M2.5 colour-cycle preview/editor remain deliberately deferred.
+Brilliance PLT export and the M2.5 colour-cycle preview/editor remain
+deliberately deferred.
+
+M2.4f validation can carry an `ilbm-document-metadata-not-preserved` issue when
+an extracted `CustomPalette` leaves this document-preserving workflow. CRNG,
+BODY, and raw chunks remain in `IlbmDocument`, not `CustomPalette`.

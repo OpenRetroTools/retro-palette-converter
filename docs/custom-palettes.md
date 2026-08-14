@@ -65,8 +65,10 @@ in [`palette-interchange.md`](palette-interchange.md). Stored-palette extraction
 from indexed PNG, GIF, and BMP is documented in
 [`indexed-image-palettes.md`](indexed-image-palettes.md). Brilliance's verified
 import-only boundary is documented in
-[`brilliance-plt.md`](brilliance-plt.md); export and broad cross-format
-validation remain future work.
+[`brilliance-plt.md`](brilliance-plt.md); its export remains evidence-gated.
+Shared analysis, preflight planning, explicit execution, and palette-only
+hardware validation are documented in
+[`palette-validation.md`](palette-validation.md).
 
 Amiga IFF/ILBM CMAP workflows and their separate container/CRNG state are
 documented in

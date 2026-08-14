@@ -36,3 +36,9 @@ compatibility boundary are documented in
 [`docs/brilliance-plt.md`](docs/brilliance-plt.md). Do not extend the writer or
 accepted structure without primary documentation or independently validated
 historical samples.
+Palette analysis, stable issue codes, target distinctions, and conservative
+execution policy are documented in
+[`docs/palette-validation.md`](docs/palette-validation.md). Planning must remain
+pure, codec capabilities must remain the source of format truth, and new
+hardware constraints require documented metadata rather than inference from
+display names or tags.
