@@ -24,6 +24,7 @@ from PySide6.QtWidgets import (
 
 from retropal.core.converter import convert
 from retropal.core.dither import get_dither, iter_dithers
+from retropal.palettes.base import RGBColor
 
 DEFAULT_COMPARE_IDS = (
     "none",
@@ -78,10 +79,13 @@ class CompareDitheringDialog(QDialog):
         palette_id: str,
         current_dither_id: str,
         parent: QWidget | None = None,
+        *,
+        colors: tuple[RGBColor, ...] | None = None,
     ) -> None:
         super().__init__(parent)
         self._source_image = source_image.copy()
         self._palette_id = palette_id
+        self._colors = colors
         self.selected_dither_id = current_dither_id
         self._checks: dict[str, QCheckBox] = {}
         self._preview_buttons: dict[str, PreviewButton] = {}
@@ -159,7 +163,7 @@ class CompareDitheringDialog(QDialog):
         columns = 3 if len(dither_ids) > 4 else 2
         for index, dither_id in enumerate(dither_ids):
             algorithm = get_dither(dither_id)
-            result = convert(source, self._palette_id, dither_id)
+            result = convert(source, self._palette_id, dither_id, colors=self._colors)
             button = PreviewButton(
                 dither_id,
                 algorithm.display_name,

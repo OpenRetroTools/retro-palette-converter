@@ -29,11 +29,14 @@ from retropal.core.dither import iter_dithers
 from retropal.gui.batch_dialog import BatchConvertDialog
 from retropal.gui.compare_dialog import CompareDitheringDialog
 from retropal.gui.controller import ConverterController, palette_display_metadata
+from retropal.gui.custom_palette_dialog import CustomPaletteDialog
 from retropal.gui.image_view import ImageView
 from retropal.gui.palette_view import PaletteView
 from retropal.palettes import get_palette_info, iter_palette_info
+from retropal.palettes.custom import CustomPaletteError
 from retropal.palettes.fixed import load_fixed_palette
 from retropal.palettes.profiles import get_platform_profile, iter_platform_profiles
+from retropal.palettes.store import CustomPaletteStore
 
 IMAGE_FILTER = "Images (*.png *.jpg *.jpeg *.bmp)"
 
@@ -41,9 +44,16 @@ IMAGE_FILTER = "Images (*.png *.jpg *.jpeg *.bmp)"
 class MainWindow(QMainWindow):
     """Release-candidate desktop interface."""
 
-    def __init__(self) -> None:
+    def __init__(self, custom_store: CustomPaletteStore | None = None) -> None:
         super().__init__()
         self._controller = ConverterController()
+        self._custom_store = custom_store or CustomPaletteStore.default()
+        custom_store_error: str | None = None
+        if custom_store is None:
+            try:
+                self._custom_store.load_all()
+            except (OSError, CustomPaletteError) as exc:
+                custom_store_error = str(exc)
         self._settings = QSettings()
         self.setAcceptDrops(True)
         self.setWindowTitle("Retro Palette Converter")
@@ -53,6 +63,12 @@ class MainWindow(QMainWindow):
         self._build_toolbar()
         self._build_content()
         self._set_conversion_enabled(False)
+        if custom_store_error is not None:
+            QMessageBox.warning(
+                self,
+                "Could not load custom palettes",
+                custom_store_error,
+            )
 
     def _build_actions(self) -> None:
         self._open_action = QAction("&Open…", self)
@@ -72,6 +88,9 @@ class MainWindow(QMainWindow):
         self._export_palette_action = QAction("Export &Palette…", self)
         self._export_palette_action.triggered.connect(self.export_palette)
 
+        self._custom_palettes_action = QAction("Custom &Palettes…", self)
+        self._custom_palettes_action.triggered.connect(self.open_custom_palettes)
+
         quit_action = QAction("E&xit", self)
         quit_action.setShortcut(QKeySequence.StandardKey.Quit)
         quit_action.triggered.connect(self.close)
@@ -87,6 +106,7 @@ class MainWindow(QMainWindow):
         file_menu.addSeparator()
         file_menu.addAction(quit_action)
         tools_menu = self.menuBar().addMenu("&Tools")
+        tools_menu.addAction(self._custom_palettes_action)
         tools_menu.addAction(self._compare_action)
         self.menuBar().addMenu("&Help").addAction(about_action)
 
@@ -186,6 +206,12 @@ class MainWindow(QMainWindow):
             palette_names.add(info.name)
             added_palette_ids.add(info.id)
             self._palette_combo.addItem(info.name, info.id)
+        if allowed is None:
+            for palette in self._custom_store.list():
+                if palette.name in palette_names:
+                    raise ValueError(f"Duplicate palette display name: {palette.name}")
+                palette_names.add(palette.name)
+                self._palette_combo.addItem(f"{palette.name} (Custom)", palette.id)
 
     def _apply_platform_profile(self) -> None:
         profile_id = self._profile_combo.currentData()
@@ -229,6 +255,7 @@ class MainWindow(QMainWindow):
             self._palette_combo.currentData(),
             current_dither,
             self,
+            colors=self._controller.custom_palette_colors,
         )
         if dialog.exec() != dialog.DialogCode.Accepted:
             return
@@ -256,6 +283,7 @@ class MainWindow(QMainWindow):
             self._controller.set_options(
                 self._palette_combo.currentData(),
                 self._dither_combo.currentData(),
+                custom_colors=self._selected_custom_colors(),
             )
             converted = self._controller.refresh()
         except ValueError as exc:
@@ -271,15 +299,44 @@ class MainWindow(QMainWindow):
     def _refresh_palette_panel(self) -> None:
         colors = self._controller.display_palette
         self._palette_view.set_colors(colors)
-        self._palette_metadata.setText(
-            palette_display_metadata(self._controller.palette_id, colors)
-        )
+        if self._controller.custom_palette_colors is not None:
+            self._palette_metadata.setText(f"Custom palette · Ordered colors: {len(colors)}")
+        else:
+            self._palette_metadata.setText(
+                palette_display_metadata(self._controller.palette_id, colors)
+            )
+
+    def _selected_custom_colors(self) -> tuple[tuple[int, int, int], ...] | None:
+        palette_id = self._palette_combo.currentData()
+        try:
+            return self._custom_store.get(palette_id).colors
+        except ValueError:
+            return None
+
+    def open_custom_palettes(self) -> None:
+        dialog = CustomPaletteDialog(self._custom_store, self)
+        result = dialog.exec()
+        selected_id = dialog.selected_palette_id
+        current_id = selected_id or self._palette_combo.currentData()
+        with QSignalBlocker(self._profile_combo):
+            self._profile_combo.setCurrentIndex(0)
+        with QSignalBlocker(self._palette_combo):
+            self._palette_combo.clear()
+            self._populate_palette_combo()
+            index = self._palette_combo.findData(current_id)
+            self._palette_combo.setCurrentIndex(index if index >= 0 else 0)
+        if result == dialog.DialogCode.Accepted or self._controller.has_image:
+            self.refresh_conversion()
 
     def _trace_palette(self, signal: str) -> None:
         if not os.environ.get("RETROPAL_PALETTE_TRACE"):
             return
         palette_id = self._palette_combo.currentData()
-        palette = (
+        try:
+            custom_palette = self._custom_store.get(palette_id)
+        except ValueError:
+            custom_palette = None
+        palette = custom_palette or (
             get_palette_info(palette_id)
             if get_palette_info(palette_id).adaptive
             else load_fixed_palette(palette_id)

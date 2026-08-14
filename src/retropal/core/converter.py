@@ -30,5 +30,7 @@ def convert_file(
     output_path: Path,
     palette_id: str,
     dither: str | DitherMode,
+    *,
+    colors: tuple[RGBColor, ...] | None = None,
 ) -> None:
-    save_png(convert(load_image(input_path), palette_id, dither), output_path)
+    save_png(convert(load_image(input_path), palette_id, dither, colors=colors), output_path)

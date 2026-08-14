@@ -47,6 +47,7 @@ class ConverterController:
         self.dither = DitherMode.NONE
         self.result_palette: tuple[tuple[int, int, int], ...] = ()
         self.display_palette: tuple[RGBColor, ...] = ()
+        self.custom_palette_colors: tuple[RGBColor, ...] | None = None
 
     @property
     def has_image(self) -> bool:
@@ -60,16 +61,24 @@ class ConverterController:
         self.display_palette = ()
         return self.source_image
 
-    def set_options(self, palette_id: str, dither: str | DitherMode) -> None:
+    def set_options(
+        self,
+        palette_id: str,
+        dither: str | DitherMode,
+        *,
+        custom_colors: tuple[RGBColor, ...] | None = None,
+    ) -> None:
         self.palette_id = palette_id
         self.dither = dither
+        self.custom_palette_colors = custom_colors
 
     def refresh(self) -> Image.Image:
         if self.source_image is None:
             raise RuntimeError("No source image loaded")
-        self.display_palette = resolve_display_palette_colors(
-            self.palette_id,
-            self.source_image,
+        self.display_palette = (
+            self.custom_palette_colors
+            if self.custom_palette_colors is not None
+            else resolve_display_palette_colors(self.palette_id, self.source_image)
         )
         self.converted_image = convert(
             self.source_image,

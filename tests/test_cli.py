@@ -134,3 +134,60 @@ def test_palettes_family_filter_verbose(capsys: pytest.CaptureFixture[str]) -> N
     assert "atari-st: Atari ST" in output
     assert "Family: Atari" in output
     assert "commodore-64" not in output
+
+
+def test_custom_palette_cli_workflow_and_conversion(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    store = tmp_path / "palettes"
+    common = ["custom-palettes", "--store", str(store)]
+    assert main([*common, "create", "cli-demo", "CLI Demo", "#000000", "#FFFFFF", "#000000"]) == 0
+    assert main([*common, "rename", "cli-demo", "Renamed Demo"]) == 0
+    assert main([*common, "add", "cli-demo", "#FF0000"]) == 0
+    assert main([*common, "set", "cli-demo", "1", "#00FF00"]) == 0
+    assert main([*common, "move", "cli-demo", "3", "1"]) == 0
+    assert main([*common, "remove", "cli-demo", "2"]) == 0
+    assert main([*common, "show", "cli-demo"]) == 0
+    output = capsys.readouterr().out
+    assert "cli-demo: Renamed Demo (custom)" in output
+    assert "0: #000000" in output
+    assert "1: #FF0000" in output
+    assert "2: #000000" in output
+
+    native = store / "cli-demo.retropal-palette.json"
+    source = tmp_path / "source.png"
+    target = tmp_path / "custom.png"
+    Image.new("RGBA", (3, 2), (120, 120, 120, 255)).save(source)
+    assert (
+        main(
+            [
+                "convert",
+                str(source),
+                "--custom-palette",
+                str(native),
+                "--dither",
+                "floyd-steinberg",
+                "-o",
+                str(target),
+            ]
+        )
+        == 0
+    )
+    assert target.exists()
+    assert {pixel[:3] for pixel in Image.open(target).convert("RGBA").get_flattened_data()} <= {
+        (0, 0, 0),
+        (255, 0, 0),
+    }
+
+
+def test_custom_palette_cli_reports_invalid_native_file(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    malformed = tmp_path / "bad.retropal-palette.json"
+    malformed.write_text("not json", encoding="utf-8")
+    with pytest.raises(SystemExit) as exc_info:
+        main(["custom-palettes", "--store", str(tmp_path / "store"), "load", str(malformed)])
+    assert exc_info.value.code == 2
+    assert "Malformed native palette JSON" in capsys.readouterr().err

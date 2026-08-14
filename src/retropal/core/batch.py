@@ -8,6 +8,7 @@ from pathlib import Path
 
 from retropal.core.converter import convert_file
 from retropal.core.models import DitherMode
+from retropal.palettes.base import RGBColor
 
 SUPPORTED_IMAGE_SUFFIXES = frozenset({".bmp", ".jpeg", ".jpg", ".png"})
 
@@ -74,6 +75,7 @@ def convert_batch(
     dry_run: bool = False,
     progress: Callable[[int, Path], None] | None = None,
     is_cancelled: Callable[[], bool] | None = None,
+    colors: tuple[RGBColor, ...] | None = None,
 ) -> BatchResult:
     """Convert supported images below *input_dir* to PNG files in *output_dir*."""
 
@@ -106,7 +108,7 @@ def convert_batch(
             continue
 
         try:
-            convert_file(source, target, palette_id, dither)
+            convert_file(source, target, palette_id, dither, colors=colors)
         except (OSError, ValueError) as exc:
             failures.append(BatchFailure(source=source, message=str(exc)))
         else:

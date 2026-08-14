@@ -15,6 +15,7 @@ hardware-inspired retro palettes.
 - Batch conversion from both the GUI and CLI
 - Visual dithering comparison with click-to-select previews
 - Lightweight CLI without Qt
+- Ordered custom palettes with native save/load and a compact GUI editor
 
 ## Development installation
 
@@ -57,6 +58,12 @@ uv run retropal inspect input.png
 uv run retropal batch input-dir output-dir --palette amiga-ocs-32
 uv run retropal convert input.png --palette amiga-ocs-32 \
   --dither floyd-steinberg --output output.png
+uv run retropal custom-palettes create my-palette "My Palette" \
+  '#000000' '#FFFFFF' '#000000'
+uv run retropal custom-palettes show my-palette
+uv run retropal convert input.png \
+  --custom-palette ~/.local/share/retropal/palettes/my-palette.retropal-palette.json \
+  --output output.png
 ```
 
 ## Verification
@@ -64,6 +71,7 @@ uv run retropal convert input.png --palette amiga-ocs-32 \
 ```bash
 uv run ruff format --check src tests
 uv run ruff check .
+uv run basedpyright
 uv run pytest
 uv run python -m compileall -q src
 ```
@@ -112,7 +120,7 @@ Interchange work targets tested workflows with Deluxe Paint, Personal Paint,
 Brilliance, GrafX2, Godot2Amiga, and OpenVN without claiming compatibility
 before formats and round trips have been validated.
 
-- **M2.4a Custom Palette Core** — create, edit, name, reorder, save, and load
+- [x] **M2.4a Custom Palette Core** — create, edit, name, reorder, save, and load
   user palettes through shared GUI and CLI services.
 - **M2.4b Standard Palette Formats** — import and export GIMP GPL, JASC-PAL,
   RIFF PAL, Adobe ACT, JSON, and CSV while preserving colour order and supported
