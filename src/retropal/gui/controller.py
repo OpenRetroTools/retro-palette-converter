@@ -75,11 +75,13 @@ class ConverterController:
             self.source_image,
             self.palette_id,
             self.dither,
+            colors=self.display_palette,
         )
         self.result_palette = palette_for_result(
             self.source_image,
             self.converted_image,
             self.palette_id,
+            declared_palette=self.display_palette,
         )
         return self.converted_image
 

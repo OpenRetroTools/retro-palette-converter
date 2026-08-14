@@ -103,6 +103,8 @@ compatibility.
 - [x] **M2.3.9 Architecture and Quality Review** — automatic fixed-palette
   discovery, validated canonical metadata, cross-registry consistency checks,
   and generated platform/palette inventory.
+- [x] **Pre-M2.4 Quality Hardening** — single-resolution palette data flow,
+  static type checking in CI, and deterministic dithering regression coverage.
 
 ### M2.4 — Custom Palettes and Palette Interchange
 

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from pathlib import Path
+from typing import cast
 
 from PIL import Image
 
@@ -22,8 +24,14 @@ def save_png(image: Image.Image, path: Path) -> None:
 
 def inspect_image(path: Path) -> ImageInfo:
     image = load_image(path)
-    rgb_colors = {(r, g, b) for r, g, b, alpha in image.get_flattened_data() if alpha > 0}
-    has_alpha = any(alpha < 255 for *_, alpha in image.get_flattened_data())
+    rgb_colors: set[tuple[int, int, int]] = set()
+    has_alpha = False
+    pixels = cast(Iterable[tuple[int, int, int, int]], image.get_flattened_data())
+    for red, green, blue, alpha in pixels:
+        if alpha > 0:
+            rgb_colors.add((red, green, blue))
+        if alpha < 255:
+            has_alpha = True
     return ImageInfo(
         width=image.width,
         height=image.height,

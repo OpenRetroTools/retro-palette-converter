@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import cast
 
 from PIL import Image
 
@@ -41,11 +42,13 @@ def _ordered_dither(
     output = Image.new("RGBA", rgba.size)
     size = len(matrix)
     levels = size * size
+    # TODO: Evaluate amplitude against target-palette quantization characteristics
+    # using visual comparisons and regression evidence before changing this value.
     amplitude = 64.0
 
     for y in range(rgba.height):
         for x in range(rgba.width):
-            red, green, blue, alpha = rgba.getpixel((x, y))
+            red, green, blue, alpha = cast(tuple[int, int, int, int], rgba.getpixel((x, y)))
             if alpha == 0:
                 output.putpixel((x, y), (0, 0, 0, 0))
                 continue

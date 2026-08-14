@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from collections import Counter
+from collections.abc import Iterable
+from typing import cast
 
 from PIL import Image
 
@@ -16,7 +18,12 @@ def quantize_channel_to_4bit(value: int) -> int:
 
 
 def quantize_color_to_ocs(color: RGBColor) -> RGBColor:
-    return tuple(quantize_channel_to_4bit(channel) for channel in color)
+    red, green, blue = color
+    return (
+        quantize_channel_to_4bit(red),
+        quantize_channel_to_4bit(green),
+        quantize_channel_to_4bit(blue),
+    )
 
 
 def generate_ocs_palette(image: Image.Image, color_count: int) -> tuple[RGBColor, ...]:
@@ -24,7 +31,8 @@ def generate_ocs_palette(image: Image.Image, color_count: int) -> tuple[RGBColor
         raise ValueError("Amiga OCS palettes currently support 16, 32, or 64 colors.")
 
     rgba = image.convert("RGBA")
-    opaque_rgb = [(r, g, b) for r, g, b, alpha in rgba.get_flattened_data() if alpha > 0]
+    pixels = cast(Iterable[tuple[int, int, int, int]], rgba.get_flattened_data())
+    opaque_rgb = [(red, green, blue) for red, green, blue, alpha in pixels if alpha > 0]
     if not opaque_rgb:
         return ((0, 0, 0),)
 
@@ -41,7 +49,9 @@ def generate_ocs_palette(image: Image.Image, color_count: int) -> tuple[RGBColor
     candidates: list[RGBColor] = []
     for index in range(color_count):
         offset = index * 3
-        candidate = quantize_color_to_ocs(tuple(raw_palette[offset : offset + 3]))
+        candidate = quantize_color_to_ocs(
+            (raw_palette[offset], raw_palette[offset + 1], raw_palette[offset + 2])
+        )
         if candidate not in candidates:
             candidates.append(candidate)
 

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from PIL import Image
 
 from retropal.core.dither.base import DitherAlgorithm
@@ -17,10 +19,12 @@ def apply_atkinson(
 
     rgba = image.convert("RGBA")
     width, height = rgba.size
-    work = [
-        [list(map(float, rgba.getpixel((x, y))[:3])) for x in range(width)] for y in range(height)
+    pixels = [
+        [cast(tuple[int, int, int, int], rgba.getpixel((x, y))) for x in range(width)]
+        for y in range(height)
     ]
-    alpha = [[rgba.getpixel((x, y))[3] for x in range(width)] for y in range(height)]
+    work = [[list(map(float, pixel[:3])) for pixel in row] for row in pixels]
+    alpha = [[pixel[3] for pixel in row] for row in pixels]
     output = Image.new("RGBA", rgba.size)
 
     for y in range(height):

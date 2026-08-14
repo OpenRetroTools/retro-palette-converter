@@ -204,8 +204,8 @@ class BatchConvertDialog(QDialog):
         self._progress.setRange(0, 0)
         self._status.setText("Discovering images…")
 
-        self._thread = QThread(self)
-        self._worker = BatchWorker(
+        thread = QThread(self)
+        worker = BatchWorker(
             input_dir,
             output_dir,
             self._palette_combo.currentData(),
@@ -214,16 +214,18 @@ class BatchConvertDialog(QDialog):
             overwrite=self._overwrite.isChecked(),
             dry_run=self._dry_run.isChecked(),
         )
-        self._worker.moveToThread(self._thread)
-        self._thread.started.connect(self._worker.run)
-        self._worker.progress.connect(self._on_progress)
-        self._worker.completed.connect(self._on_completed)
-        self._worker.failed.connect(self._on_failed)
-        self._worker.finished.connect(self._thread.quit)
-        self._worker.finished.connect(self._worker.deleteLater)
-        self._thread.finished.connect(self._thread.deleteLater)
-        self._thread.finished.connect(self._thread_finished)
-        self._thread.start()
+        self._thread = thread
+        self._worker = worker
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+        worker.progress.connect(self._on_progress)
+        worker.completed.connect(self._on_completed)
+        worker.failed.connect(self._on_failed)
+        worker.finished.connect(thread.quit)
+        worker.finished.connect(worker.deleteLater)
+        thread.finished.connect(thread.deleteLater)
+        thread.finished.connect(self._thread_finished)
+        thread.start()
 
     @Slot(int, int, str)
     def _on_progress(self, current: int, total: int, source: str) -> None:

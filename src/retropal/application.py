@@ -6,9 +6,19 @@ import hashlib
 import os
 from collections.abc import Sequence
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from PySide6.QtWidgets import QApplication
+
+    from retropal.gui.main_window import MainWindow
 
 
-def _run_palette_trace_sequence(application: object, window: object, image_path: Path) -> None:
+def _run_palette_trace_sequence(
+    application: QApplication,
+    window: MainWindow,
+    image_path: Path,
+) -> None:
     """Run the opt-in rendered-palette diagnostic inside the real application."""
     from PySide6.QtGui import QImage
 

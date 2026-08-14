@@ -210,13 +210,13 @@ class MainWindow(QMainWindow):
         return group
 
     def open_image(self) -> None:
-        start_dir = self._settings.value("lastDirectory", str(Path.home()), type=str)
+        start_dir = str(self._settings.value("lastDirectory", str(Path.home()), type=str))
         filename, _ = QFileDialog.getOpenFileName(self, "Open image", start_dir, IMAGE_FILTER)
         if filename:
             self.load_path(Path(filename))
 
     def open_batch_dialog(self) -> None:
-        start_dir = Path(self._settings.value("lastDirectory", str(Path.home()), type=str))
+        start_dir = Path(str(self._settings.value("lastDirectory", str(Path.home()), type=str)))
         dialog = BatchConvertDialog(self, start_dir=start_dir)
         dialog.exec()
 

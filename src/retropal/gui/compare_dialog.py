@@ -140,6 +140,8 @@ class CompareDitheringDialog(QDialog):
     def _clear_previews(self) -> None:
         while self._preview_grid.count():
             item = self._preview_grid.takeAt(0)
+            if item is None:
+                continue
             widget = item.widget()
             if widget is not None:
                 widget.deleteLater()

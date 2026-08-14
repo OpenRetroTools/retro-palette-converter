@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from pathlib import Path
+from typing import cast
 
 from PIL import Image
 
@@ -15,7 +17,8 @@ def used_colors(image: Image.Image) -> tuple[RGBColor, ...]:
     """Return opaque RGB colors in first-use order."""
     seen: set[RGBColor] = set()
     colors: list[RGBColor] = []
-    for red, green, blue, alpha in image.convert("RGBA").get_flattened_data():
+    pixels = cast(Iterable[tuple[int, int, int, int]], image.convert("RGBA").get_flattened_data())
+    for red, green, blue, alpha in pixels:
         color = (red, green, blue)
         if alpha > 0 and color not in seen:
             seen.add(color)
@@ -27,9 +30,13 @@ def palette_for_result(
     source: Image.Image,
     converted: Image.Image,
     palette_id: str,
+    *,
+    declared_palette: tuple[RGBColor, ...] | None = None,
 ) -> tuple[RGBColor, ...]:
     """Return the declared palette filtered to colors used by the result."""
-    declared = palette_colors(palette_id, source)
+    declared = (
+        declared_palette if declared_palette is not None else palette_colors(palette_id, source)
+    )
     active = set(used_colors(converted))
     return tuple(color for color in declared if color in active)
 
