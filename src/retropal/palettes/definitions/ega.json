@@ -15,6 +15,7 @@
     "pc",
     "ega"
   ],
+  "alias_of": "ega-default",
   "colors": [
     [
       0,

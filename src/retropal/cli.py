@@ -737,6 +737,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"  Manufacturer: {info.manufacturer}")
             print(f"  Year: {info.year if info.year is not None else 'unknown'}")
             print(f"  Colours: {info.color_count} ({mode})")
+            if info.alias_of is not None:
+                print(f"  Compatibility alias of: {info.alias_of}")
             print(f"  {info.description}")
         return 0
     if args.command == "inspect":

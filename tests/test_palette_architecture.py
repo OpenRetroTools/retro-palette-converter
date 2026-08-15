@@ -12,6 +12,7 @@ from retropal.palettes.fixed import (
     REQUIRED_METADATA_FIELDS,
     _fixed_palettes,
     fixed_palette_ids,
+    load_fixed_palette,
 )
 from retropal.palettes.inventory import inventory_markdown
 from retropal.palettes.profiles import (
@@ -91,6 +92,38 @@ def test_duplicate_fixed_palette_display_names_are_rejected(
     _fixed_palettes.cache_clear()
 
 
+def test_fixed_palette_alias_target_must_exist(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    original = Path(__file__).parents[1] / "src/retropal/palettes/definitions/gameboy.json"
+    payload = json.loads(original.read_text(encoding="utf-8"))
+    definition = tmp_path / "gameboy.json"
+    definition.write_text(json.dumps(payload | {"alias_of": "missing"}), encoding="utf-8")
+    monkeypatch.setattr("retropal.palettes.fixed._definition_resources", lambda: (definition,))
+    _fixed_palettes.cache_clear()
+    with pytest.raises(ValueError, match="aliases unknown palette"):
+        _fixed_palettes()
+    _fixed_palettes.cache_clear()
+
+
+def test_fixed_palette_alias_colors_must_match(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = Path(__file__).parents[1] / "src/retropal/palettes/definitions"
+    alias_payload = json.loads((root / "gameboy.json").read_text(encoding="utf-8"))
+    target_payload = json.loads((root / "gameboy-dmg.json").read_text(encoding="utf-8"))
+    alias_payload["colors"][0] = [0, 0, 0]
+    alias = tmp_path / "gameboy.json"
+    target = tmp_path / "gameboy-dmg.json"
+    alias.write_text(json.dumps(alias_payload), encoding="utf-8")
+    target.write_text(json.dumps(target_payload), encoding="utf-8")
+    monkeypatch.setattr("retropal.palettes.fixed._definition_resources", lambda: (alias, target))
+    _fixed_palettes.cache_clear()
+    with pytest.raises(ValueError, match="does not match alias target"):
+        _fixed_palettes()
+    _fixed_palettes.cache_clear()
+
+
 def test_duplicate_profile_ids_are_rejected() -> None:
     profile = iter_platform_profiles()[0]
     with pytest.raises(ValueError, match="Duplicate platform profile ID"):
@@ -102,6 +135,16 @@ def test_generated_inventory_contains_every_profile_palette() -> None:
     for profile in iter_platform_profiles():
         for palette_id in profile.palette_ids:
             assert f"| {profile.platform} | {profile.name} | {palette_id} |" in inventory
+
+
+def test_legacy_palette_aliases_are_explicit_and_equivalent() -> None:
+    aliases = {"gameboy": "gameboy-dmg", "ega": "ega-default"}
+    assert {
+        info.id: info.alias_of for info in iter_palette_info() if info.alias_of is not None
+    } == aliases
+    for legacy_id, canonical_id in aliases.items():
+        assert load_fixed_palette(legacy_id).colors == load_fixed_palette(canonical_id).colors
+        assert f"| `{legacy_id}` | `{canonical_id}` |" in inventory_markdown()
 
 
 def test_profile_type_is_immutable() -> None:

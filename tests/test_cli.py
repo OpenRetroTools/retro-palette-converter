@@ -111,6 +111,8 @@ def test_palettes_verbose_command(capsys: pytest.CaptureFixture[str]) -> None:
     assert "commodore-64: Commodore 64 (VICE)" in output
     assert "amiga-aga-256: Amiga AGA 256" in output
     assert "Manufacturer: Commodore" in output
+    assert "gameboy: Game Boy" in output
+    assert "Compatibility alias of: gameboy-dmg" in output
 
 
 def test_palettes_family_filter(capsys: pytest.CaptureFixture[str]) -> None:

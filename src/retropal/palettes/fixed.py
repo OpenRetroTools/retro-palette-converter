@@ -87,6 +87,9 @@ def _validate_payload(payload: dict[str, Any], source: str) -> None:
     ):
         if not isinstance(payload[field], str) or not payload[field].strip():
             raise ValueError(f"Palette definition {source} has invalid {field}")
+    alias_of = payload.get("alias_of")
+    if alias_of is not None and (not isinstance(alias_of, str) or not alias_of.strip()):
+        raise ValueError(f"Palette definition {source} has invalid alias_of")
 
 
 def _palette_from_payload(payload: dict[str, Any], source: str) -> FixedPalette:
@@ -117,6 +120,7 @@ def _palette_from_payload(payload: dict[str, Any], source: str) -> FixedPalette:
         bit_depth=payload["bit_depth"],
         dac_size=payload["dac_size"],
         palette_source=payload["palette_source"],
+        alias_of=payload.get("alias_of"),
     )
     return FixedPalette(info.id, info.name, colors, info)
 
@@ -138,6 +142,19 @@ def _fixed_palettes() -> dict[str, FixedPalette]:
             )
         palettes[palette.id] = palette
         names[folded_name] = palette.id
+    for palette in palettes.values():
+        target_id = palette.info.alias_of
+        if target_id is None:
+            continue
+        if target_id == palette.id:
+            raise ValueError(f"Palette {palette.id} cannot alias itself")
+        target = palettes.get(target_id)
+        if target is None:
+            raise ValueError(f"Palette {palette.id} aliases unknown palette: {target_id}")
+        if target.info.alias_of is not None:
+            raise ValueError(f"Palette {palette.id} aliases another alias: {target_id}")
+        if palette.colors != target.colors:
+            raise ValueError(f"Palette {palette.id} does not match alias target: {target_id}")
     return palettes
 
 

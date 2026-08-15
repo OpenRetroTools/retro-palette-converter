@@ -48,6 +48,7 @@ def normalize(payload: dict[str, Any]) -> dict[str, Any]:
         "description",
         "notes",
         "tags",
+        "alias_of",
         "platform_family",
         "generation",
     )

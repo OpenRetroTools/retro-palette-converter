@@ -20,8 +20,8 @@ source. Unsupported versions, unknown/missing fields, and invalid values are
 rejected rather than repaired.
 
 This is Retro Palette Converter's versioned application-native persistence,
-not the general JSON interchange format planned for M2.4b. Native documents
-are intentionally namespaced and use a distinctive filename suffix.
+not the separate general JSON interchange format. Native documents are
+intentionally namespaced and use a distinctive filename suffix.
 
 The default user directory is:
 

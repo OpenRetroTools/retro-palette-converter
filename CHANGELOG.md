@@ -1,7 +1,17 @@
-## [Unreleased]
+# Changelog
+
+## Unreleased
 
 ### Added
 
+- Added ordered custom palettes, native persistence, standard palette
+  interchange, and indexed PNG/GIF/BMP palette extraction.
+- Added preservation-safe Amiga ILBM CMAP/CRNG workflows and verified,
+  evidence-backed Brilliance PLT import; Brilliance export remains unsupported.
+- Added typed palette analysis, validation and conversion planning with
+  conservative explicit execution.
+- Added deterministic CRNG colour-cycle editing, simulation, and indexed ILBM
+  preview while preserving BODY and unsupported cycle chunks.
 - Added a Compare Dithering dialog with selectable side-by-side previews.
 - Added click-to-select integration that applies the chosen algorithm to the main preview.
 - Atkinson error-diffusion dithering.
@@ -12,10 +22,6 @@
 
 - Refactored dithering into an extensible registry shared by the converter, CLI, and GUI.
 - Kept the existing `none` and `floyd-steinberg` modes backward compatible.
-
-# Changelog
-
-## Unreleased
 
 ### M2.3b
 
@@ -38,7 +44,7 @@
 - Updated the development version shown by CLI and Help → About to 0.2.0.dev1.
 
 
-### Added
+### M2.1b
 
 - Added a responsive GUI batch-conversion dialog under File → Batch Convert.
 - Added input/output directory selection, palette and dithering options, recursive mode, overwrite, and dry-run controls.
@@ -99,4 +105,3 @@
 ## 0.2.0.dev0 — M1
 
 - Added PNG conversion, fixed palettes, Amiga OCS palettes, dithering, and inspection.
-

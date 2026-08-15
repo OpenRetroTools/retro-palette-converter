@@ -18,7 +18,7 @@ Keep the image-processing core independent from PySide6 so it remains reusable b
 
 Custom palette architecture is documented in
 [`docs/custom-palettes.md`](docs/custom-palettes.md). Keep the immutable,
-format-independent model separate from native persistence, future interchange
+format-independent model separate from native persistence, interchange
 adapters, Qt widgets, and the repository-owned built-in palette registry.
 Standard codec capabilities and binary-format references are documented in
 [`docs/palette-interchange.md`](docs/palette-interchange.md). Each codec must
@@ -47,3 +47,12 @@ are documented in
 [`docs/amiga-colour-cycling.md`](docs/amiga-colour-cycling.md). Cycling must
 remain palette-state evaluation over an unchanged index buffer; BODY and
 unsupported DRNG/BRNG data must never be rewritten or interpreted speculatively.
+
+## Historical delivery artifacts
+
+The tracked `.delivery/` directories are archival handoff bundles from earlier
+milestones. Their notes, verification transcripts, patch overlays, and the
+M2.3b `overlay.tar.gz` are retained as reproducibility records; they are not the
+current installation or development workflow. Do not apply their historical
+overlay scripts to a current checkout. New work should use the source tree and
+the checks documented above.

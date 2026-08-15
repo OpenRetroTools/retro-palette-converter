@@ -27,3 +27,15 @@
 | Apple Macintosh II | Apple Macintosh — 8-bit System 7 | macintosh-8bit | 256 | Apple Computer | 1991 |
 | Hercules Graphics Card | Hercules Monochrome | hercules-default | 2 | Hercules Computer Technology | 1982 |
 | Sharp X68000 | Sharp X68000 | x68000-default | 256 | Sharp | 1987 |
+
+## Compatibility aliases
+
+These IDs remain available for backward compatibility and resolve to the same
+ordered RGB values as their canonical platform-profile palette.
+Other profiles may share RGB values while retaining distinct platform metadata;
+equal colours alone do not make a compatibility alias.
+
+| Legacy palette ID | Canonical palette ID |
+|---|---|
+| `ega` | `ega-default` |
+| `gameboy` | `gameboy-dmg` |

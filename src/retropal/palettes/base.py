@@ -26,6 +26,7 @@ class PaletteInfo:
     bit_depth: str | None = None
     dac_size: str | None = None
     palette_source: str | None = None
+    alias_of: str | None = None
 
 
 class Palette(Protocol):

@@ -15,6 +15,7 @@
     "handheld",
     "game-boy"
   ],
+  "alias_of": "gameboy-dmg",
   "colors": [
     [
       15,

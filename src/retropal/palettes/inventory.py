@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from retropal.palettes import get_palette_info
+from retropal.palettes import get_palette_info, iter_palette_info
 from retropal.palettes.profiles import iter_platform_profiles
 
 
@@ -27,4 +27,22 @@ def inventory_markdown() -> str:
                 str(info.year),
             )
             lines.append("| " + " | ".join(cell.replace("|", "\\|") for cell in cells) + " |")
+    aliases = tuple(info for info in iter_palette_info() if info.alias_of is not None)
+    if aliases:
+        lines.extend(
+            (
+                "",
+                "## Compatibility aliases",
+                "",
+                "These IDs remain available for backward compatibility and resolve to the same",
+                "ordered RGB values as their canonical platform-profile palette.",
+                "Other profiles may share RGB values while retaining distinct platform metadata;",
+                "equal colours alone do not make a compatibility alias.",
+                "",
+                "| Legacy palette ID | Canonical palette ID |",
+                "|---|---|",
+            )
+        )
+        for info in aliases:
+            lines.append(f"| `{info.id}` | `{info.alias_of}` |")
     return "\n".join(lines) + "\n"

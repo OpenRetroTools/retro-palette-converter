@@ -6,9 +6,10 @@ hardware-inspired retro palettes.
 ## Features
 
 - Side-by-side original and converted previews
-- Game Boy, PICO-8, EGA 16, DawnBringer 16, and Amiga OCS 16/32
-- Atari 2600 (TIA), Atari 8-bit (ANTIC/GTIA), Atari ST, Atari STE, and Atari Falcon030
-- None or Floyd–Steinberg dithering
+- Built-in profiles for Amiga and Commodore, Atari, Nintendo, Sega, Sinclair,
+  classic PC and Macintosh displays, plus PICO-8 and DawnBringer 16
+- None, Floyd–Steinberg, Atkinson, Sierra-family, Burkes, Stucki,
+  Jarvis–Judice–Ninke, and Bayer 2×2/4×4/8×8 dithering
 - PNG, JPEG, and BMP input; PNG output
 - Alpha preservation
 - Drag and drop, synchronized zoom, pan, fit, and 100% view
@@ -96,11 +97,12 @@ uv run pytest
 uv run python -m compileall -q src
 ```
 
-## Roadmap
+## Roadmap and release themes
 
-- v0.1: desktop converter and CLI
-- v0.2: batch conversion
-- v0.3: custom palettes, palette interchange, import, and editing
+- v0.1: desktop converter and CLI (released)
+- v0.2: batch conversion (implemented)
+- v0.3: custom palettes, palette interchange, import, and editing (implemented;
+  Brilliance export remains evidence-gated)
 - v0.4: sprite-sheet workflows (original roadmap entry; scope deferred to 3.x)
 
 Roadmap entries below describe plans, not claims of implemented or tested
@@ -175,7 +177,7 @@ is not advertised or generated.
   unique colours, RGB distance, luminance, and palette statistics.
 - Add perceptual distance such as Delta E only with a documented colour-space
   and conversion method; raw RGB distance is not perceptual accuracy.
-- Suggest palette reductions and merges, and validate platform limits.
+- Suggest palette reductions and merges without silently changing indexes.
 
 ### M2.7 — Palette Gallery and Library UX
 
